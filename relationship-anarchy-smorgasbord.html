@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relationship Anarchy Smorgasbord Activity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Agu+Display&family=Arimo:wght@400;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#7c4dff;
+    --accent-dark:#5e35b1;
+    --bg:#faf7f5;
+    --card:#ffffff;
+    --ink:#2b2530;
+    --muted:#7a7280;
+    --line:#eee3e8;
+    --platter:#2e7d32;
+    --platter-bg:#e9f6ea;
+    --discuss:#b45309;
+    --discuss-bg:#fff4e2;
+    --parked:#6b6470;
+    --parked-bg:#f2eef3;
+    --danger:#c0392b;
+    --radius:14px;
+    /* animated background blob palette — soft, pastel versions of the accent/cert colors above */
+    --g-bg1:#f7f1fb;
+    --g-bg2:#fdf3f6;
+    --g-c1:124,77,255;
+    --g-c2:200,109,215;
+    --g-c3:110,200,180;
+    --g-c4:221,178,90;
+    --g-c5:230,150,170;
+    --g-c-interactive:150,120,255;
+    --g-circle-size:60%;
+    --g-blend:soft-light;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    /* base typeface for all body copy and non-uppercase headings; uppercase text overrides to
+       Arimo, and the "Let's Make A Smorgasbord" headers / Step 1 & 2 labels override to Agu
+       Display -- see .brand-title, .hero-title, .step-label, and the uppercase selectors below */
+    font-family:'Atkinson Hyperlegible',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.5;
+  }
+
+  /* ---- animated morphing-gradient background: soft, drifting blurred color blobs behind
+     every screen, adapted from the goo-filter technique in https://youtu.be/Ml-B-W91gtw
+     (baunov/gradients-bg), recolored to match this app's own palette instead of the original's
+     saturated purple/blue neon look. Pure-CSS keyframe animation; safe/inert in non-visual
+     environments (no JS animation loop, so it can't hang a headless test run). ---- */
+  @keyframes gMoveInCircle{0%{transform:rotate(0deg);}50%{transform:rotate(180deg);}100%{transform:rotate(360deg);}}
+  @keyframes gMoveVertical{0%{transform:translateY(-50%);}50%{transform:translateY(50%);}100%{transform:translateY(-50%);}}
+  @keyframes gMoveHorizontal{0%{transform:translateX(-50%) translateY(-10%);}50%{transform:translateX(50%) translateY(10%);}100%{transform:translateX(-50%) translateY(-10%);}}
+  .gradient-bg{
+    position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;
+    background:linear-gradient(40deg,var(--g-bg1),var(--g-bg2));
+  }
+  .gradient-bg svg{position:fixed;top:0;left:0;width:0;height:0;}
+  .gradient-bg .gradients-container{filter:url(#goo) blur(40px);width:100%;height:100%;opacity:0.6;}
+  .gradient-bg .g1,.gradient-bg .g2,.gradient-bg .g3,.gradient-bg .g4,.gradient-bg .g5,.gradient-bg .interactive{
+    position:absolute;mix-blend-mode:var(--g-blend);
+  }
+  .gradient-bg .g1{
+    background:radial-gradient(circle at center,rgba(var(--g-c1),0.8) 0,rgba(var(--g-c1),0) 50%) no-repeat;
+    width:var(--g-circle-size);height:var(--g-circle-size);
+    top:calc(50% - var(--g-circle-size) / 2);left:calc(50% - var(--g-circle-size) / 2);
+    transform-origin:center center;animation:gMoveVertical 60s ease infinite;
+  }
+  .gradient-bg .g2{
+    background:radial-gradient(circle at center,rgba(var(--g-c2),0.8) 0,rgba(var(--g-c2),0) 50%) no-repeat;
+    width:var(--g-circle-size);height:var(--g-circle-size);
+    top:calc(50% - var(--g-circle-size) / 2);left:calc(50% - var(--g-circle-size) / 2);
+    transform-origin:calc(50% - 400px);animation:gMoveInCircle 40s reverse infinite;
+  }
+  .gradient-bg .g3{
+    background:radial-gradient(circle at center,rgba(var(--g-c3),0.8) 0,rgba(var(--g-c3),0) 50%) no-repeat;
+    width:var(--g-circle-size);height:var(--g-circle-size);
+    top:calc(50% - var(--g-circle-size) / 2 + 200px);left:calc(50% - var(--g-circle-size) / 2 - 500px);
+    transform-origin:calc(50% + 400px);animation:gMoveInCircle 80s linear infinite;
+  }
+  .gradient-bg .g4{
+    background:radial-gradient(circle at center,rgba(var(--g-c4),0.8) 0,rgba(var(--g-c4),0) 50%) no-repeat;
+    width:var(--g-circle-size);height:var(--g-circle-size);
+    top:calc(50% - var(--g-circle-size) / 2);left:calc(50% - var(--g-circle-size) / 2);
+    transform-origin:calc(50% - 200px);animation:gMoveHorizontal 80s ease infinite;opacity:0.7;
+  }
+  .gradient-bg .g5{
+    background:radial-gradient(circle at center,rgba(var(--g-c5),0.8) 0,rgba(var(--g-c5),0) 50%) no-repeat;
+    width:calc(var(--g-circle-size) * 2);height:calc(var(--g-circle-size) * 2);
+    top:calc(50% - var(--g-circle-size));left:calc(50% - var(--g-circle-size));
+    transform-origin:calc(50% - 800px) calc(50% + 200px);animation:gMoveInCircle 40s ease infinite;
+  }
+  .gradient-bg .interactive{
+    background:radial-gradient(circle at center,rgba(var(--g-c-interactive),0.7) 0,rgba(var(--g-c-interactive),0) 50%) no-repeat;
+    width:100%;height:100%;top:-50%;left:-50%;opacity:0.5;
+    transition:transform 0.6s cubic-bezier(0.2,0.8,0.2,1);
+  }
+  @media (prefers-reduced-motion: reduce){
+    /* Freeze every blob at its animation's 0% keyframe position instead of letting
+       `animation:none` silently drop the transform back to its un-animated default
+       (which would shift g1/g4 to an undesigned spot). The result is a deliberate,
+       fixed "static blobby image" -- nothing drifts and nothing follows the mouse. */
+    .gradient-bg .g1{animation:none;transform:translateY(-50%);}
+    .gradient-bg .g2{animation:none;transform:rotate(0deg);}
+    .gradient-bg .g3{animation:none;transform:rotate(0deg);}
+    .gradient-bg .g4{animation:none;transform:translateX(-50%) translateY(-10%);}
+    .gradient-bg .g5{animation:none;transform:rotate(0deg);}
+    .gradient-bg .interactive{transition:none;}
+  }
+  @media (max-width:700px){
+    .gradient-bg .gradients-container{filter:url(#goo) blur(22px);}
+  }
+  @media print{.gradient-bg{display:none;}}
+
+  #app{max-width:880px;margin:0 auto;padding:24px 18px 80px;position:relative;z-index:1;}
+  h1,h2,h3{line-height:1.25;}
+  h1{font-size:1.6rem;margin:0 0 6px;}
+  h2{font-size:1.25rem;margin:0 0 4px;}
+  h3{font-size:1.05rem;margin:0;}
+  p{margin:0 0 12px;}
+  .muted{color:var(--muted);font-size:0.92rem;}
+  a{color:var(--accent-dark);}
+  a:hover{color:var(--accent);}
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:18px;
+    box-shadow:0 1px 3px rgba(60,30,60,0.04);
+  }
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--accent);color:#fff;border:none;
+    padding:11px 18px;border-radius:10px;font-size:0.95rem;font-weight:600;
+    cursor:pointer;transition:background .15s ease, transform .1s ease;
+  }
+  .btn:hover{background:var(--accent-dark);}
+  .btn:active{transform:scale(0.98);}
+  .btn:disabled{background:#cfc7d6;cursor:not-allowed;}
+  .btn.secondary{background:#fff;color:var(--accent);border:1.5px solid var(--accent);}
+  .btn.secondary:hover{background:#f4effd;}
+  /* the default --muted/--line pair (used elsewhere for text on solid white cards, where it's fine)
+     only measures ~4.2:1 text / ~1.1:1 border against this page's light gradient background --
+     short of the WCAG AA 4.5:1 text and 3:1 UI-boundary minimums. Darkened here so the top-bar's
+     "Home"/"Start Over" buttons (the only place this base rule actually renders -- the tile and
+     hint-toggle variants both override it) stay comfortably compliant: ~6.4-6.6:1 text, ~3.6-3.7:1 border. */
+  .btn.ghost{background:transparent;color:#5c5566;border:1px solid #8d7899;font-weight:500;padding:8px 14px;font-size:0.85rem;}
+  .btn.ghost:hover{background:#f4f0f2;}
+  .btn.small{padding:7px 12px;font-size:0.82rem;border-radius:8px;}
+  .btn.danger-outline{background:#fff;color:var(--danger);border:1.5px solid #f0c7c2;}
+  .btn.danger-outline:hover{background:#fdf1ef;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .row.between{justify-content:space-between;}
+  /* Rate/Combine/Results header -- same icon-top, left-aligned, stacked layout as the Home
+     hero below (icon+eyebrow row, then title, then subtitle, then actions), just always
+     left-aligned rather than centering at wider breakpoints, and without the hero's huge
+     display-size title. Replaces the old side-by-side icon+text row, which broke down once
+     the title switched to the wider Agu Display face: the fixed-height badge either
+     overlapped the taller multi-line text block next to it, or (once top-aligned) still
+     collided with the title line directly below the eyebrow. */
+  .top-bar{margin-bottom:22px;}
+  .top-bar-eyebrow-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .brand-badge{
+    width:35px;height:35px;border-radius:50%;background:var(--accent);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.05rem;line-height:1;
+  }
+  .brand-eyebrow{
+    font-family:'Arimo',Arial,sans-serif;font-weight:700;font-size:0.85rem;
+    letter-spacing:0.15em;text-transform:uppercase;margin:0;color:var(--ink);
+  }
+  .brand-title{
+    font-family:'Agu Display','Arimo',Arial,sans-serif;font-variation-settings:"MORF" 30;
+    font-size:2rem;font-weight:400;margin:0 0 10px;line-height:1.15;letter-spacing:0.05em;
+  }
+  .top-bar-subtitle{font-size:0.92rem;margin-bottom:16px;max-width:640px;}
+
+  /* ---- home hero: matches the Figma "after" mock (icon + eyebrow, big display headline,
+     description, actions) -- only used on the home screen; other screens keep the compact
+     .top-bar above but share its fonts/logo for visual consistency. ---- */
+  /* default (medium/wide, >=700px): centered, matching the Figma desktop "after" mock */
+  .hero{margin-bottom:22px;text-align:center;}
+  .hero-eyebrow-row{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;}
+  .hero-eyebrow{
+    font-family:'Arimo',Arial,sans-serif;font-weight:700;font-size:1rem;
+    letter-spacing:0.15em;text-transform:uppercase;margin:0;color:var(--ink);
+  }
+  .hero-title{
+    font-family:'Agu Display','Arimo',Arial,sans-serif;font-variation-settings:"MORF" 30;
+    font-size:3.4rem;line-height:1.04;letter-spacing:0.05em;font-weight:400;
+    margin:0 0 16px;color:var(--ink);
+  }
+  .hero-description{
+    font-family:'Atkinson Hyperlegible',Arial,sans-serif;font-size:1.125rem;line-height:1.5;
+    margin:0 auto 18px;color:var(--ink);max-width:520px; /* forces the wrap after "quiz," at wide breakpoints, per Figma */
+  }
+  .hero-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:22px;}
+  /* mobile (<700px): left-aligned, matching the Figma mobile "after" mock.
+     font-size here is only the no-JS fallback -- fitHeroTitle() overrides it with a size
+     tuned to the actual viewport so "Smorgasbord" fills the width without overflowing. */
+  @media (max-width:700px){
+    .hero-title{font-size:2.5rem;}
+    .tile h3 .step-label{font-size:2.5rem;}
+    .hero{text-align:left;}
+    .hero-eyebrow-row{flex-direction:row;justify-content:flex-start;}
+    .hero-description{margin-left:0;margin-right:0;}
+    .hero-actions{justify-content:flex-start;}
+  }
+  input[type=text]{
+    width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;
+    font-size:0.98rem;font-family:inherit;background:#fff;color:var(--ink);
+  }
+  input[type=text]:focus{outline:none;border-color:var(--accent);}
+  label.field-label{display:block;font-weight:600;font-size:0.85rem;margin-bottom:6px;color:var(--ink);}
+  select{
+    padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;
+    font-size:0.92rem;background:#fff;color:var(--ink);
+  }
+  .category-block{margin-bottom:26px;}
+  .category-title{
+    font-family:'Arimo',Arial,sans-serif;font-size:1.25rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+    color:var(--accent-dark);margin-bottom:4px;padding-bottom:6px;border-bottom:2px solid #f0e8fb;
+  }
+  /* .category-title is shared markup between the quiz (rate screen) and the results-page
+     accordions; the 1.25rem bump above is scoped to the quiz only, so restore the original
+     smaller size specifically inside the results accordions, which weren't part of this ask. */
+  .accordion-body .category-title{font-size:0.78rem;}
+  .category-desc{
+    font-size:0.85rem;color:var(--muted);line-height:1.5;margin:8px 0 14px;
+    background:#faf7fc;border:1px solid #f0e8fb;border-radius:8px;padding:10px 12px;
+  }
+  .item-row{
+    display:flex;flex-direction:column;gap:10px;
+    padding:14px 0;border-bottom:1px solid var(--line);
+  }
+  .item-row:last-child{border-bottom:none;}
+  .item-label{font-weight:600;}
+  .item-hint{font-size:0.82rem;color:var(--muted);line-height:1.4;margin-top:4px;max-width:520px;}
+
+  /* ---- rating scale: one wrapping row of 4 identically-shaped pill buttons (3 rating options +
+     "Skip — discuss later" as a peer, not a secondary button tucked onto its own line below).
+     flex-wrap is the key fix for the narrow-viewport/large-font clipping bug: pill text keeps
+     white-space:nowrap (so labels never truncate mid-word), and flex-wrap lets pills that no
+     longer fit on the current line drop to a new line instead of overflowing the container. ---- */
+  .pill-group{display:flex;flex-wrap:wrap;gap:8px;max-width:560px;}
+  .pill{
+    border:1.5px solid var(--line);background:#fff;color:var(--ink);
+    padding:10px 14px;font-size:0.85rem;cursor:pointer;position:relative;
+    white-space:nowrap;font-weight:600;border-radius:999px;text-align:center;flex:1 1 120px;
+    transition:background .12s ease,border-color .12s ease,color .12s ease,transform .1s ease;
+    user-select:none;z-index:1;
+  }
+  .pill:hover{transform:translateY(-1px);z-index:2;}
+  .pill:active{transform:translateY(0);}
+  /* at narrow/mobile widths, a 120px flex-basis fits 2 pills per row, so the 4 options land as
+     an uneven 2x2 grid -- stack them into one full-width column instead, which also sidesteps
+     the wrap-clipping case the flex-basis above exists for, since each pill now owns the row. */
+  @media (max-width:700px){
+    .pill-group{flex-direction:column;max-width:none;}
+    .pill{flex:1 1 auto;width:100%;}
+  }
+  .pill.selected{z-index:2;}
+
+  /* hover emphasis: hovering one of the 4 pills darkens its own fill a touch and fades the
+     *other three* toward white with a softer border, so the one you're pointing at pops -- text
+     color is untouched on every pill, only background/border shift. Scoped to the unanswered
+     state; once an item has an answer, the existing grey-out-except-selected treatment below
+     already provides that same "what am I pointing at" contrast. */
+  .pill-group:not(.answered):hover .pill:not(:hover){background:#ffffff;border-color:#e9e3ec;}
+  .pill-group .pill.opt-not_interested:hover{background:#fbdcd8;}
+  .pill-group .pill.opt-neutral:hover{background:#ffedb0;}
+  .pill-group .pill.opt-definitely:hover{background:#d7ecd9;}
+  /* hovering Skip/discuss itself brings its blue border back (on top of the darker-blue fill
+     it already had), matching the other 3 pills' pattern of a colored border + fill together --
+     it's only the *resting* state below that stays border-light/fill-white. */
+  .pill-group .pill.opt-discuss:hover{background:#cfe0fd;border-color:#2563eb;}
+
+  /* default (unanswered) colors — outline + soft fill per option */
+  .pill.opt-not_interested{border-color:#d64545;background:#fdecea;color:#b3261e;}
+  .pill.opt-neutral{border-color:#e0900a;background:#fff6d9;color:#9a6400;}
+  .pill.opt-definitely{border-color:var(--platter);background:var(--platter-bg);color:var(--platter);}
+  /* Skip/discuss stays plain white/unfilled at rest (only its text reads blue), with the same
+     grey stroke (var(--line)) the other pills switch to once one in the row is selected. The
+     blue border+fill only show up on hover, above. */
+  .pill.opt-discuss{border-color:var(--line);background:#ffffff;color:#1d4ed8;}
+
+  /* once an item has an answer, the chosen pill goes solid dark grey... */
+  .pill-group .pill.selected{
+    background:#222222 !important;border-color:#222222 !important;color:#ffffff !important;
+  }
+  .pill-group .pill.selected:hover{background:#333333 !important;border-color:#333333 !important;}
+
+  /* ...and every *other* option in that row goes quiet/grayscale... */
+  .pill-group.answered .pill:not(.selected){
+    border-color:var(--line);background:#f7f5f8;color:var(--muted);
+  }
+  /* ...until hovered, which brings back that option's real color as a "you could switch" hint */
+  .pill-group.answered .pill.opt-not_interested:not(.selected):hover{border-color:#d64545;background:#fdecea;color:#b3261e;}
+  .pill-group.answered .pill.opt-neutral:not(.selected):hover{border-color:#e0900a;background:#fff6d9;color:#9a6400;}
+  .pill-group.answered .pill.opt-definitely:not(.selected):hover{border-color:var(--platter);background:var(--platter-bg);color:var(--platter);}
+  .pill-group.answered .pill.opt-discuss:not(.selected):hover{border-color:#2563eb;background:#e8f0fe;color:#1d4ed8;}
+  /* "N of 49 rated" text, the progress track, and the hint toggle all sit on one row, vertically
+     centered. The track is the only flexible item (flex:1) so it fills whatever width is left
+     between the text on the left and the button on the right.
+     The bar now lives inside the items .card (rather than as a free sibling between cards), so
+     its sticky range is scoped to that card — it stops sticking once you've scrolled past the
+     item list, instead of floating over the whole page indefinitely. It's also hidden until the
+     page is actually scrolled (see .scrolled below / the syncProgressBarScrollState() JS), so it
+     doesn't just sit there redundantly while the top of the card — name field and all — is still
+     fully in view. */
+  /* the bar now also cancels the card's 20px *top* padding (not just its sides), and picks up
+     the card's own corner radius on just its top two corners, so the gradient fills all the way
+     into that curved corner instead of leaving a sliver of plain white card showing above it. */
+  .progress-wrap{
+    position:sticky;top:0;z-index:5;
+    background:linear-gradient(135deg,#7c4dff,#c86dd7);
+    border-radius:var(--radius) var(--radius) 0 0;padding:10px 16px;margin:-20px -20px 16px -20px;
+    display:flex;align-items:center;gap:12px;
+    opacity:0;visibility:hidden;pointer-events:none;
+    transition:opacity .18s ease;
+  }
+  .progress-wrap.scrolled{opacity:1;visibility:visible;pointer-events:auto;}
+  .progress-text{font-size:0.82rem;color:#fff;flex-shrink:0;white-space:nowrap;}
+  .progress-track{flex:1 1 auto;height:8px;background:rgba(255,255,255,0.35);border-radius:6px;overflow:hidden;}
+  .progress-fill{height:100%;background:#fff;border-radius:6px;transition:width .2s ease;}
+  .hint-toggle-btn{flex-shrink:0;}
+  /* White border/text against this gradient measures ~4.8:1 at its purple end and ~3.2:1 at its
+     lighter pink end — still clears the WCAG 3:1 minimum for non-text UI component borders at
+     the gradient's least-contrasty point (the default .btn.ghost border, var(--line), would be
+     nowhere close against a background this saturated). A dark (not light) fill keeps the white
+     text/border and the lightbulb emoji reading clearly against the button itself. */
+  .hint-toggle-btn.btn.ghost{
+    border-color:rgba(255,255,255,0.9);color:#fff;background:rgba(0,0,0,0.32);
+  }
+  .hint-toggle-btn.btn.ghost:hover{background:rgba(0,0,0,0.45);}
+  /* the app-wide 2.5rem .emoji default was stretching this button 10px taller than Home/Start
+     Over next to it (same issue as the old Print a PDF button) -- sized to sit inline with the
+     button's own text instead, like the print button's icon now does. */
+  .hint-toggle-btn .emoji{font-size:1rem;line-height:1;}
+  /* ---- home tile status lines (no pill background — just a dot + text) ----
+     .status-dot is a plain outlined circle; .status-half fills its left half via a hard-stop
+     gradient (currentColor / transparent), .status-full fills the whole circle solid. */
+  .status-line{display:inline-flex;align-items:center;gap:7px;font-size:0.82rem;font-weight:700;letter-spacing:.02em;}
+  .status-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid currentColor;box-sizing:border-box;flex-shrink:0;display:inline-block;}
+  .status-dot.status-half{background:linear-gradient(to right, currentColor 50%, transparent 50%);}
+  .status-dot.status-full{background:currentColor;}
+  .tile .status-line.in-progress{color:#f0a868;}
+  .tile .status-line.saved{color:#7fd9a0;}
+  .section-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;cursor:default;}
+  .section-header .count{background:#f0e8fb;color:var(--accent-dark);font-size:0.78rem;font-weight:700;padding:2px 9px;border-radius:20px;}
+  /* flat list rows instead of individually-boxed cards -- no radius, no left/right border, just a
+     horizontal divider between items (mirrors .item-row's pattern on the rating screen) */
+  .result-item{
+    border:none;border-radius:0;border-bottom:1px solid var(--line);
+    padding:14px 2px;margin-bottom:0;background:transparent;
+  }
+  .result-item:last-child{border-bottom:none;}
+  .result-item.removed-item{opacity:0.85;}
+  .result-item.favorited{background:#fffaf0;}
+  /* wrap-reverse (not wrap): when .favorite-control doesn't fit next to .result-item-main on
+     one line, this puts its wrapped line ABOVE the main-content line instead of below --
+     flex-wrap only reverses which line comes first, not the left-to-right order within a
+     line, so the wide-width case (both fit on one line) renders identically either way. This
+     way the star/priority badge always lands at the top of the item whenever it wraps, for
+     every row, without a fixed-width media query forcing the stack on rows that still fit. */
+  .result-item-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap-reverse;}
+  .result-item-main{flex:1 1 220px;}
+  .result-item-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+  .flag-note{font-size:0.82rem;color:var(--muted);margin-top:4px;}
+  .ratings-detail{font-size:0.78rem;color:var(--muted);margin-top:4px;line-height:1.6;}
+  .item-category-tag{font-family:'Arimo',Arial,sans-serif;font-size:0.72rem;color:var(--accent-dark);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+
+  /* ---- favorite / "Very important" star toggle ---- */
+  .favorites-block{margin-bottom:18px;}
+  .favorite-control{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .very-important-label{
+    font-size:0.72rem;font-weight:700;color:#b45309;background:#fff4e2;
+    padding:3px 9px;border-radius:20px;white-space:nowrap;
+  }
+  /* star colors darkened from the original #c9c2d1/#e0900a/#f2a900 -- against the white card
+     background those measured ~1.7:1 / ~2.6:1 / ~2.0:1, all short of the 3:1 minimum for a
+     graphical/icon-only control that conveys its favorited state through color alone. */
+  .star-btn{
+    background:none;border:none;cursor:pointer;font-size:1.4rem;line-height:1;
+    color:#8f8898;padding:2px;transition:color .12s ease, transform .12s ease;
+  }
+  .star-btn:hover{color:#a37a08;transform:scale(1.15);}
+  .star-btn.active{color:#8f6c07;}
+
+  /* ---- results-page accordion sections (Platter / Discuss / Misaligned-or-double-neutrals / Removed) ---- */
+  .results-accordion{margin-bottom:16px;}
+  .accordion-header{
+    cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;
+    padding:16px 20px;background:#fff;border:1.5px solid var(--line);border-radius:12px;font-weight:700;font-size:1.02rem;
+    transition:background .15s ease,color .15s ease,border-color .15s ease;
+  }
+  /* the count + chevron live in their own flex-shrink:0 group on the right so they never get
+     dragged into the title's text flow -- previously they sat inline after the title inside one
+     div, so a long title wrapping at narrow widths could wrap the count along with it instead of
+     leaving it pinned next to the arrow. min-width:0 on the label lets the title actually wrap
+     within its own column (a flex-item quirk: without it, flex items refuse to shrink below
+     their content's natural width); align-items:flex-start plus the emoji/title being separate
+     flex items (rather than inline text) gives wrapped title lines a hanging indent -- they stay
+     in the title's column to the right of the emoji instead of wrapping back under it. */
+  .accordion-header-label{display:flex;align-items:flex-start;gap:8px;min-width:0;}
+  .accordion-header-label .emoji{flex-shrink:0;}
+  .accordion-header-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .accordion-header .count{background:#f0e8fb;color:var(--accent-dark);font-size:0.78rem;font-weight:700;padding:2px 9px;border-radius:20px;}
+  /* open = darker background, so it's obvious at a glance which sections are expanded */
+  .accordion-header.open{
+    background:#2b2530;border-color:#2b2530;color:#fff;
+    border-bottom-left-radius:0;border-bottom-right-radius:0;
+  }
+  .accordion-body{padding:18px 18px 4px;border:1.5px solid var(--line);border-top:none;border-radius:0 0 12px 12px;background:#fff;}
+  .accordion-body.collapsed{display:none;}
+  .chevron{transition:transform .15s ease;}
+  .chevron.open{transform:rotate(180deg);}
+  .empty-state{text-align:center;padding:26px 10px;color:var(--muted);font-size:0.92rem;}
+
+  /* ---- "Add an item" footer section ---- */
+  .add-item-footer{
+    background:linear-gradient(135deg,#f4ecfd,#ece0fa);
+    border:1.5px solid #d9bdf2;border-radius:16px;padding:24px;margin-top:8px;margin-bottom:18px;
+  }
+  .file-drop{
+    border:2px dashed #d9cbe8;border-radius:12px;padding:26px;text-align:center;background:#fbf9fe;cursor:pointer;
+    transition:border-color .12s ease,background .12s ease;
+  }
+  .file-drop:hover{border-color:var(--accent);}
+  .file-drop.dragover{border-color:var(--accent);background:#f4effd;border-style:solid;}
+  .loaded-file{
+    display:flex;justify-content:space-between;align-items:center;padding:10px 14px;
+    background:#f8f5fa;border-radius:10px;margin-bottom:8px;font-size:0.9rem;
+  }
+  .home-tiles{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;}
+  @media (max-width:640px){.home-tiles{grid-template-columns:1fr;}}
+  .tile{
+    border:1.5px solid #382a46;border-radius:16px;padding:22px;cursor:default;
+    background:linear-gradient(135deg,#241a30,#180f22);color:#f5f0fa;
+    box-shadow:0 2px 10px rgba(30,10,40,0.18);text-align:left;
+    display:flex;flex-direction:column;
+  }
+  /* shared sizing for standalone decorative emoji glyphs throughout the app */
+  .emoji{font-size:2.5rem;line-height:1;vertical-align:middle;}
+  .tile .tile-emoji{font-size:2.5rem;margin-bottom:8px;display:block;}
+  /* accordion section icons run smaller than the 2.5rem app-wide default so they don't
+     overwhelm their inline labels */
+  .accordion-header .emoji{font-size:1.75rem;}
+  /* the print button's icon sits inline with regular button text (unlike the accordion/tile
+     emoji above, which stand alone) -- sized to match that text instead of the oversized
+     app-wide default, so it fits inside the button instead of stretching it taller. */
+  [data-action="print-certificate"] .emoji{font-size:1rem;line-height:1;}
+  .tile h3{color:#ffffff;}
+  /* matches .hero-title's size/weight exactly (both breakpoints, below) rather than its own
+     fixed size -- Agu Display only ships the one (regular) weight, so font-weight:400 is
+     already as light as it gets; it was only *reading* bolder here because a display face's
+     thin strokes look chunkier the smaller it's set, not because of an actual heavier weight.
+     display:block + an explicit margin-bottom (rather than the inline span + <br> this used to
+     be) guarantees clearance below it: Agu Display's own baked-in ascent/descent metrics run
+     tall enough that even a generous CSS line-height wasn't enough gap on its own -- the text
+     right after it (step-title, below) was visually colliding with its descenders. */
+  .tile h3 .step-label{
+    display:block;font-family:'Agu Display','Arimo',Arial,sans-serif;font-variation-settings:"MORF" 30;
+    font-size:3.4rem;font-weight:400;letter-spacing:0.05em;line-height:1.1;margin:0 0 10px;
+  }
+  /* matches the "What this is" card heading's size (h2, 1.25rem) rather than the ~0.85rem it
+     inherited from the shared h3 default. */
+  .tile h3 .step-title{display:block;font-size:1.25rem;}
+  .tile .muted{color:#c9bcd6;}
+  .tile-actions{display:flex;flex-wrap:wrap;gap:8px;}
+  /* The flexible (auto) space lives between the paragraph copy and whatever comes right after
+     it — the status line, if one is showing, otherwise the button row directly. Since
+     .home-tiles is a grid, both tiles stretch to the same height, so that single auto margin
+     always expands to fill 100% of the tile's remaining space. That means the status line (and
+     the buttons below it) land at the exact same fixed distance from the *bottom* of the tile in
+     both cards, so they line up across tiles regardless of how much description copy is above.
+     padding-top is a minimum-gap fallback for when there's no extra space to expand into, e.g.
+     the single-column mobile layout where each tile is only as tall as its own content. */
+  .tile p.muted + .tile-actions{margin-top:auto;padding-top:14px;}
+  .tile p.muted + .status-line{margin-top:auto;padding-top:14px;}
+  /* Fixed gap from the status line down to the buttons: exactly 2x the gap between the primary
+     and secondary buttons themselves (.tile-actions gap:8px above, so 16px here). */
+  .status-line + .tile-actions{margin-top:16px;}
+  .tile .btn.ghost{color:#f0e9f7;border:1.5px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.07);}
+  .tile .btn.ghost:hover{background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.55);}
+  /* ghost buttons inside a tile match the size of the primary button next to them */
+  .tile-actions .btn.ghost{padding:11px 18px;font-size:0.95rem;border-radius:10px;}
+  .footer-note{text-align:center;color:var(--muted);font-size:0.8rem;margin-top:30px;}
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:#2b2530;color:#fff;padding:11px 20px;border-radius:10px;font-size:0.88rem;
+    box-shadow:0 4px 14px rgba(0,0,0,0.2);z-index:50;opacity:0;pointer-events:none;transition:opacity .2s ease;
+  }
+  .toast.show{opacity:1;}
+  /* results-page celebration card: title, then participant names in the same display face as
+     "Let's Make A Smorgasbord", then actions -- each on its own line, centered at every
+     breakpoint (unlike the header above, which stays left-aligned). Background reuses the same
+     gradient as the quiz's progress bar (.progress-wrap), so this card reads as the same
+     "you did it" color note landing on the results page. Text and buttons flip to white/
+     translucent-white on top of it, the same way .tile already does for its own dark background. */
+  .results-hero{
+    text-align:center;color:#fff;
+    background:linear-gradient(135deg,#7c4dff,#c86dd7);border-color:transparent;
+  }
+  .results-hero-title{margin:0 0 6px;color:#fff;}
+  .results-hero-names{
+    font-family:'Agu Display','Arimo',Arial,sans-serif;font-variation-settings:"MORF" 30;
+    font-size:3rem;line-height:1.15;letter-spacing:0.05em;font-weight:400;
+    color:#fff;margin:0 0 18px;
+    /* no white-space:nowrap: fitResultsNames() sizes this to fit on one line for any
+       reasonably-short name combo, but a pathologically long one can still hit the JS
+       floor (MIN_PX) below the width it needs -- wrapping to a 2nd line there beats
+       running off the edge of the card/viewport. */
+  }
+  .results-hero-actions{justify-content:center;}
+  /* white text on a *lightly* translucent white fill (as tried initially) measures under 3:1
+     against this gradient -- white-on-tinted-white is low-contrast almost by construction,
+     however see-through. A near-opaque white pill with dark accent text instead clears the
+     WCAG AA 4.5:1 text minimum comfortably (~7.7:1 against the gradient's lighter end) while
+     still reading as a translucent chip sitting on top of the gradient, not a flat card. */
+  .results-hero-actions .btn{
+    background:rgba(255,255,255,0.92);color:var(--accent-dark);border:1.5px solid rgba(255,255,255,0.95);
+  }
+  .results-hero-actions .btn:hover{background:#ffffff;}
+  hr.divider{border:none;border-top:1px solid var(--line);margin:22px 0;}
+  .instructions ol{padding-left:20px;margin:0;}
+  .instructions ul{padding-left:20px;margin:0;}
+  .instructions li{margin-bottom:6px;}
+  .phone-tips-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+  @media (max-width:640px){.phone-tips-grid{grid-template-columns:1fr;}}
+  .phone-tip-card{border:1.5px solid var(--line);border-radius:12px;padding:16px;background:#faf8fb;}
+  .phone-tip-card h3{color:var(--accent-dark);margin-bottom:8px;}
+  .phone-tip-card ol{padding-left:20px;margin:0;}
+  .phone-tip-card li{margin-bottom:6px;font-size:0.92rem;}
+  .add-item-form{display:grid;gap:12px;margin-top:6px;}
+  textarea{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:0.95rem;resize:vertical;min-height:60px;}
+
+  /* ============================= PRINTABLE PLAQUE ============================= */
+  /* On screen, the certificate markup exists in the DOM but stays hidden; it only becomes
+     visible (and everything else hides) when the browser's print dialog is invoked, which is
+     how the "Print Plaque" button produces a Save-as-PDF-ready page without a server or a
+     PDF library. */
+  .print-only{display:none;}
+  /* #print-certificate is a direct sibling of the rest of the results page's content inside
+     #app (topBar, cards, every accordion/item row) -- not a descendant of it. visibility:hidden
+     alone leaves all of that other content still occupying its normal (tall) layout height, just
+     invisibly, so the print engine paginated across that whole hidden height: one real page for
+     the absolutely-positioned certificate, then several blank pages for the empty space below it.
+     display:none actually removes the other content from layout instead of just hiding it, so
+     the printed document is only as tall as the certificate itself. */
+  @media print{
+    #app > *:not(#print-certificate){display:none !important;}
+    #app{padding:0;max-width:none;margin:0;}
+    #print-certificate{display:block !important;margin:0;padding:0;}
+    @page{size:8.5in 11in;margin:0.4in;}
+  }
+  .cert-border{border:3px double #8a6d2f;padding:14px;}
+  .cert-inner{
+    border:1px solid #c9a95c;padding:0.5in 0.5in 0.4in;text-align:center;background:#fdfaf3;
+    display:flex;flex-direction:column;align-items:center;min-height:9.8in;box-sizing:border-box;
+  }
+  .cert-heart{font-size:26px;color:#8a6d2f;margin-bottom:8px;}
+  .cert-title{
+    font-family:Georgia,'Times New Roman',serif;font-size:2.2rem;font-weight:700;
+    letter-spacing:1.5px;color:#2e2410;margin-bottom:6px;line-height:1.15;
+  }
+  .cert-for{font-family:Georgia,serif;font-style:italic;font-size:1.15rem;color:#5c4a2a;margin-bottom:10px;}
+  .cert-wheel-wrap{width:100%;max-width:6.6in;margin:6px auto 18px;}
+  .cert-wheel-svg{width:100%;height:auto;display:block;}
+  .cert-wheel-label{font-family:Georgia,serif;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;fill:#2e2410;}
+  .cert-wheel-item{font-family:Georgia,serif;font-size:11px;fill:#2e2410;}
+  .cert-footer{margin-top:auto;padding-top:20px;font-family:Georgia,serif;font-style:italic;font-size:0.85rem;color:#7a6a45;}
+  .cert-empty{font-family:Georgia,serif;font-style:italic;color:#7a6a45;margin-top:40px;}
+</style>
+</head>
+<body>
+<div class="gradient-bg" aria-hidden="true">
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8" result="goo" />
+        <feBlend in="SourceGraphic" in2="goo" />
+      </filter>
+    </defs>
+  </svg>
+  <div class="gradients-container">
+    <div class="g1"></div>
+    <div class="g2"></div>
+    <div class="g3"></div>
+    <div class="g4"></div>
+    <div class="g5"></div>
+    <div class="interactive"></div>
+  </div>
+</div>
+<div id="app"></div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* ============================= DATA ============================= */
+const CATEGORIES = [
+  { name:"Emotional Intimacy", items:["Sharing Vulnerability","Emotional Support","Confidante","Words of Affection"],
+    desc:"The foundation of emotional closeness, trust, and vulnerability — how deeply you share your inner life, independent of any romantic label. Think: sharing vulnerability, emotional support, being a confidant, and words of affection." },
+  { name:"Physical Intimacy", items:["Cuddling","Kissing","Hand-Holding","Dancing","Massaging"],
+    desc:"Non-sexual touch used to build affection, safety, and physical closeness — casual touch like hand-holding, deeper affection like cuddling, or sensual touch like massage or dancing." },
+  { name:"Sexual Intimacy", items:["Sexual Acts","Intercourse","Sexual Talk","Kissing","Fondling"],
+    desc:"Agreements and boundaries around explicit sexual energy and physical acts, from sexual talk to intercourse — plus practices like sexual health and safety." },
+  { name:"Companionship", items:["Playfulness","Shared Activities/Interests","Friendship","Intellectual/Philosophical Discussion"],
+    desc:"The fundamental joy of sharing time, space, and conversation — shared hobbies and activities, playfulness, friendship, or deep intellectual exchange." },
+  { name:"Long-Term Partnership", items:["Shared Goals for the Future","Commitment","Chosen Family","Embracing Change in Each Other"],
+    desc:"The intention behind the duration, consistency, and future planning of the bond — factoring each other into long-term goals and embracing how each other changes over time." },
+  { name:"Caregiving", items:["Receiving Care","Giving Care","Emergency Contact"],
+    desc:"Providing or receiving direct physical and emotional support — nursing each other through illness, assisting with needs, or being someone's emergency contact." },
+  { name:"Co-Caregiving", items:["Elderly, Sick, or Disabled Adults","Children","Plants","Animals"],
+    desc:"Collaborating to care for people, animals, or responsibilities beyond yourselves — raising children, looking after pets or plants, or caring for aging or disabled family members together." },
+  { name:"Entanglement", items:["Cohabitation","Finances","Routines and Chores","Legal Commitment"],
+    desc:"How interwoven your physical, legal, and financial lives are — shared living space, finances, routines and chores, or legal commitments like marriage." },
+  { name:"Collaborative Partnership", items:["Teaching","Leading Projects","Organizational Activities","Artistic Collaboration","Business Partnership"],
+    desc:"Working as a team to create or build something outside the relationship itself — a business, a creative project, teaching one another, or organizing events together." },
+  { name:"Kink", items:["Domination","Submission","Sadism","Masochism"],
+    desc:"Consensual exploration of power, intensity, or fantasy in a physical or sexual context — domination and submission, sadism and masochism, or other negotiated dynamics." },
+  { name:"Voluntary Asymmetry", items:["Sponsor–Sponsee","Teacher–Student","Mentor–Guide","Guardian–Ward"],
+    desc:"Intentionally choosing an unequal balance of authority or structure by explicit consent — mentor–mentee, teacher–student, sponsor–sponsee, or guardian–ward dynamics." },
+  { name:"Social Partnership", items:["Public Displays of Affection","Shared Social Circles","Presenting as a Social Unit"],
+    desc:"How the relationship is presented to, and integrated into, the wider world — public affection, shared friend groups, or being seen together as a social unit." }
+];
+
+const RATING_OPTIONS = [
+  { value:"not_interested", label:"Not interested" },
+  { value:"neutral", label:"Neutral" },
+  { value:"definitely", label:"Def want this" },
+  { value:"discuss", label:"Skip — discuss later" }
+];
+
+function slugify(s){
+  return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+}
+
+// Build flat item list with stable unique IDs (category-scoped, since "Kissing" appears twice)
+const ALL_ITEMS = [];
+CATEGORIES.forEach(cat=>{
+  const catSlug = slugify(cat.name);
+  cat.items.forEach(label=>{
+    ALL_ITEMS.push({ id: catSlug+"__"+slugify(label), category: cat.name, label: label });
+  });
+});
+
+// Short one-line hints for every individual item (not just categories), keyed by [category name][item
+// label] so they stay tied to the exact wording above regardless of how slugify() encodes the id.
+const ITEM_HINT_TEXT = {
+  "Emotional Intimacy": {
+    "Sharing Vulnerability": "Expressing deep fears, insecurities, dreams, and hidden thoughts.",
+    "Emotional Support": "Actively listening, validating feelings, and helping each other process hard days.",
+    "Confidante": "Being the trusted person someone goes to with secrets or private thoughts.",
+    "Words of Affection": "Expressing care through affirmations, validation, or saying “I love you.”"
+  },
+  "Physical Intimacy": {
+    "Cuddling": "Extended hugging or cuddling on the couch, purely for closeness.",
+    "Kissing": "Casual, affectionate kissing that isn't necessarily sexual, like a peck hello or goodbye.",
+    "Hand-Holding": "Holding hands, linking arms, or leaning against each other while sitting.",
+    "Dancing": "Dancing closely together as a form of playful, non-sexual touch.",
+    "Massaging": "Giving or receiving massages, or brushing each other's hair."
+  },
+  "Sexual Intimacy": {
+    "Sexual Acts": "Any explicit sexual activity, from outercourse to specific acts you both enjoy.",
+    "Intercourse": "Penetrative sex, and any agreements around how and when it happens.",
+    "Sexual Talk": "Flirty or explicit conversation, sexting, or verbally negotiating desires.",
+    "Kissing": "Kissing as part of sexual or romantic buildup, distinct from a casual hello peck.",
+    "Fondling": "Manual stimulation or physical fondling."
+  },
+  "Companionship": {
+    "Playfulness": "Inside jokes, teasing, or just being silly together.",
+    "Shared Activities/Interests": "Hobbies, gaming, attending events, or traveling together.",
+    "Friendship": "The everyday, low-key enjoyment of each other's company.",
+    "Intellectual/Philosophical Discussion": "Deep debates, book recommendations, or discussing current events."
+  },
+  "Long-Term Partnership": {
+    "Shared Goals for the Future": "Factoring each other into 5- or 10-year plans.",
+    "Commitment": "Agreeing on how consistent and dependable this relationship will be over time.",
+    "Chosen Family": "Treating each other as family, regardless of romantic or legal status.",
+    "Embracing Change in Each Other": "Committing to grow and change together without it ending the relationship."
+  },
+  "Caregiving": {
+    "Receiving Care": "Letting this person nurse you through illness or step in during emergencies.",
+    "Giving Care": "Nursing them through illness, assisting with needs, or stepping in during emergencies.",
+    "Emergency Contact": "Being listed as a hospital emergency contact or legal next-of-kin."
+  },
+  "Co-Caregiving": {
+    "Elderly, Sick, or Disabled Adults": "Collaborating to care for aging, sick, or disabled family members.",
+    "Children": "Collaborating to raise children together.",
+    "Plants": "Sharing responsibility for houseplants or a garden.",
+    "Animals": "Sharing responsibility for pets."
+  },
+  "Entanglement": {
+    "Cohabitation": "Sharing a house, living space, or a key to each other's home.",
+    "Finances": "Joint bank accounts, shared bills, or otherwise financially supporting each other.",
+    "Routines and Chores": "Handling chores, running errands together, or sharing a calendar.",
+    "Legal Commitment": "Marriage, civil partnership, power of attorney, or naming each other a beneficiary."
+  },
+  "Collaborative Partnership": {
+    "Teaching": "One of you teaching or mentoring the other in a skill or subject.",
+    "Leading Projects": "Taking the lead together on a shared project or goal.",
+    "Organizational Activities": "Organizing events, mutual aid, or community/activist work together.",
+    "Artistic Collaboration": "Making art, playing music, writing, or co-hosting something creative together.",
+    "Business Partnership": "Operating a company, managing a brand, or investing together."
+  },
+  "Kink": {
+    "Domination": "Taking the dominant role in a consensual power exchange or BDSM dynamic.",
+    "Submission": "Taking the submissive role in a consensual power exchange or BDSM dynamic.",
+    "Sadism": "Consensually giving physical or psychological intensity as part of a kink dynamic.",
+    "Masochism": "Consensually receiving physical or psychological intensity as part of a kink dynamic."
+  },
+  "Voluntary Asymmetry": {
+    "Sponsor–Sponsee": "An intentionally unequal dynamic where one of you supports the other's recovery or growth, like a sponsor.",
+    "Teacher–Student": "An intentionally unequal dynamic where one of you is teaching or mentoring the other.",
+    "Mentor–Guide": "An intentionally unequal dynamic where one of you guides the other's personal or professional growth.",
+    "Guardian–Ward": "An intentionally unequal dynamic involving one of you taking a protective or guardianship role."
+  },
+  "Social Partnership": {
+    "Public Displays of Affection": "Kissing, hugging, or acting overtly romantic in public spaces.",
+    "Shared Social Circles": "Introducing each other to friends, family, or coworkers.",
+    "Presenting as a Social Unit": "Attending events as a plus-one, or being seen publicly (including on social media) as a pair."
+  }
+};
+
+// Resolve those per-category lookups into the same flat, id-keyed shape everything else uses.
+const ITEM_HINTS = {};
+CATEGORIES.forEach(cat=>{
+  const catSlug = slugify(cat.name);
+  const catHints = ITEM_HINT_TEXT[cat.name] || {};
+  cat.items.forEach(label=>{
+    const id = catSlug+"__"+slugify(label);
+    if(catHints[label]) ITEM_HINTS[id] = catHints[label];
+  });
+});
+
+/* ============================= STATE ============================= */
+const STORAGE_KEY = "ra_smorgasbord_app_v1";
+
+let state = loadPersistedState() || {
+  view: "home",
+  rating: null,     // { name, ratings:{itemId:value} }
+  session: null,    // { participants:[], items:{itemId:{...}}, customCounter, createdAt, lastUpdated }
+  loadedFiles: [],  // for combine screen staging: [{type,name,participant,count,timestamp}]
+  showHints: true  // whether category hint descriptions are visible on the rating screen
+};
+if(typeof state.showHints !== "boolean") state.showHints = true;
+
+function loadPersistedState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){ return null; }
+}
+function persist(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+function resetAll(){
+  if(!confirm("Start over? This clears everything saved on this device (ratings in progress and any results session). Exported files on your computer are unaffected.")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = { view:"home", rating:null, session:null, loadedFiles:[], showHints:state.showHints };
+  render();
+}
+
+/* ============================= UTIL ============================= */
+function esc(str){
+  return String(str).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(showToast._tm);
+  showToast._tm = setTimeout(()=>t.classList.remove("show"), 2400);
+}
+function todayStr(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+// Timestamp for filenames, based on the device/browser's local clock (like OS screenshot
+// naming) so exports are chronologically sortable and effectively never collide.
+function filenameTimestamp(d){
+  d = d || new Date();
+  const pad = n => String(n).padStart(2,"0");
+  const yyyy = d.getFullYear();
+  const mm = pad(d.getMonth()+1);
+  const dd = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const min = pad(d.getMinutes());
+  const ss = pad(d.getSeconds());
+  return `${yyyy}-${mm}-${dd}_${hh}-${min}-${ss}`;
+}
+function downloadJSON(obj, filename){
+  const blob = new Blob([JSON.stringify(obj, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function withScrollPreserved(fn){
+  const y = window.scrollY;
+  fn();
+  const raf = window.requestAnimationFrame || function(cb){ setTimeout(cb, 0); };
+  raf(()=>window.scrollTo(0,y));
+}
+
+/* ============================= RENDER ROOT ============================= */
+// Tracks whichever view was on screen at the end of the previous render() call, so render()
+// itself can tell a *navigation* (home -> rate, etc.) apart from a same-view re-render
+// (answering a question, toggling a favorite, ...). Replacing #app's innerHTML never moves
+// the browser's scroll position on its own -- it just keeps whatever page offset the user
+// was already at, which is correct for same-view re-renders (that's what the withScrollPreserved()
+// callers below are for) but wrong for navigation: e.g. clicking "Continue from last auto-save"
+// partway down the Home screen used to land scrolled just as far down the Rate screen,
+// skipping straight past the name field to wherever the rating questions happened to fall.
+let lastRenderedView = null;
+function render(){
+  const app = document.getElementById("app");
+  if(state.view === "home") app.innerHTML = renderHome();
+  else if(state.view === "rate") app.innerHTML = renderRate();
+  else if(state.view === "combine") app.innerHTML = renderCombine();
+  else if(state.view === "results") app.innerHTML = renderResults();
+  attachGlobalHandlers();
+  fitHeroTitle();
+  fitResultsNames();
+  if(state.view !== lastRenderedView) window.scrollTo(0,0);
+  lastRenderedView = state.view;
+}
+
+/* Measures how wide `text` would render in `el`'s current font (family/weight/style/letter-
+   spacing/variation-settings, at its current font-size) via an off-screen probe span, since
+   CSS alone can't target a single word or string's actual rendered width -- only the whole
+   element's box. Shared by fitHeroTitle and fitResultsNames below, which each scale a
+   different element's font-size off of this measurement. */
+function measureTextWidth(el, text){
+  const cs = getComputedStyle(el);
+  const probe = document.createElement("span");
+  probe.style.position = "absolute";
+  probe.style.visibility = "hidden";
+  probe.style.whiteSpace = "nowrap";
+  probe.style.left = "-9999px";
+  probe.style.fontFamily = cs.fontFamily;
+  probe.style.fontWeight = cs.fontWeight;
+  probe.style.fontStyle = cs.fontStyle;
+  probe.style.letterSpacing = cs.letterSpacing;
+  probe.style.fontVariationSettings = cs.fontVariationSettings;
+  probe.style.fontSize = cs.fontSize;
+  probe.textContent = text;
+  document.body.appendChild(probe);
+  const width = probe.offsetWidth;
+  probe.remove();
+  return { width, baseFontPx: parseFloat(cs.fontSize) };
+}
+
+/* Below 700px there's no single font-size that both fills the width and never overflows --
+   the container keeps shrinking while "Smorgasbord" (the one word that can't wrap) stays a
+   fixed number of characters. This measures "Smorgasbord" against the live font metrics and
+   scales the headline to the largest size that still fits on one line. */
+function fitHeroTitle(){
+  const el = document.querySelector(".hero-title");
+  if(!el) return;
+  const isNarrow = window.matchMedia("(max-width:700px)").matches;
+  if(!isNarrow){ el.style.fontSize = ""; return; }
+  el.style.fontSize = "";
+  const containerWidth = el.clientWidth;
+  if(containerWidth <= 0) return;
+  const { width: wordWidth, baseFontPx } = measureTextWidth(el, "Smorgasbord");
+  if(!wordWidth) return;
+  const MIN_PX = 30, MAX_PX = 3.4*16; // legible floor; never larger than the desktop size
+  const targetPx = Math.max(MIN_PX, Math.min(MAX_PX, baseFontPx*(containerWidth/wordWidth)*0.96));
+  el.style.fontSize = targetPx+"px";
+}
+
+/* Participant names on the results celebration card: always kept to one line (never wrapped
+   or broken) and scaled to fill the card's width at every breakpoint, the same way the hero
+   title above fills its width on narrow screens -- just without the narrow-only gate, since
+   this element only ever appears inside a card (not a full-width hero) so it has room to
+   shrink or grow at any viewport size. */
+function fitResultsNames(){
+  const el = document.querySelector(".results-hero-names");
+  if(!el) return;
+  el.style.fontSize = "";
+  const containerWidth = el.clientWidth;
+  if(containerWidth <= 0) return;
+  const { width: textWidth, baseFontPx } = measureTextWidth(el, el.textContent);
+  if(!textWidth) return;
+  const MIN_PX = 22, MAX_PX = 3.5*16;
+  const targetPx = Math.max(MIN_PX, Math.min(MAX_PX, baseFontPx*(containerWidth/textWidth)*0.94));
+  el.style.fontSize = targetPx+"px";
+}
+
+function topBar(subtitle, extraActions){
+  return `
+  <div class="top-bar">
+    <div class="top-bar-eyebrow-row">
+      <div class="brand-badge">♥</div>
+      <p class="brand-eyebrow">Relationship Anarchy exercise</p>
+    </div>
+    <h1 class="brand-title">Let&rsquo;s Make A Smorgasbord</h1>
+    <div class="muted top-bar-subtitle">${subtitle||""}</div>
+    <div class="row">
+      <button class="btn ghost" data-action="go-home">Home</button>
+      <button class="btn ghost" data-action="reset-all">Start Over</button>
+      ${extraActions||""}
+    </div>
+  </div>`;
+}
+
+/* home-screen hero -- matches the Figma "after" mock's layout, fonts, and copy */
+function heroHeader(){
+  return `
+  <div class="hero">
+    <div class="hero-eyebrow-row">
+      <div class="brand-badge">♥</div>
+      <p class="hero-eyebrow">Relationship Anarchy exercise</p>
+    </div>
+    <h1 class="hero-title">Let&rsquo;s Make A Smorgasbord</h1>
+    <p class="hero-description">Design a relationship you love with an easy interactive quiz, privately hosted on your own device or browser</p>
+    <div class="hero-actions">
+      <button class="btn ghost" data-action="go-home">Home</button>
+      <button class="btn ghost" data-action="reset-all">Start Over</button>
+    </div>
+  </div>`;
+}
+
+/* ============================= HOME ============================= */
+function renderHome(){
+  const hasRatingInProgress = state.rating && !state.rating.submitted;
+  const hasSession = !!state.session;
+  return `
+  ${heroHeader()}
+  <div class="card">
+    <h2>What this is</h2>
+    <p>The Relationship Anarchy Smorgasbord (from <a href="https://www.attachmentproject.com/enm/relationship-anarchy/#:~:text=openness%20is%20chief.-,The%20Relationship%20Anarchy%20Smorgasbord,-In%20an%20attempt" target="_blank" rel="noopener noreferrer">the Attachment Project</a>) is a way for people in a relationship to
+    each privately consider a big list of relational "items" &mdash; things like cuddling, cohabitation, kink, or
+    shared finances &mdash; and rate how much they want that item in <em>this</em> relationship. Nothing goes on
+    the shared "platter" unless everyone involved wants it. Anything you're unsure about, you can flag to talk
+    through together.</p>
+    <p class="muted" style="margin-bottom:0;">A note on privacy: Everything here stays on your own device. Nothing is
+    uploaded anywhere [unless you choose to share it]. You'll rate privately, export a small results file, and share
+    that file with your partner(s) however you like (text, AirDrop, email) so one of you can combine everyone's answers
+    into a results page.</p>
+  </div>
+
+  <div class="home-tiles">
+    <div class="tile">
+      <span class="tile-emoji">\u{270D}\u{FE0F}</span>
+      <h3><span class="step-label">Step 1:</span><span class="step-title">Rate the Smorgasbord</span></h3>
+      <p class="muted" style="margin-top:6px;">Go through every item privately and rate it. No one else sees your
+      answers until you export and send them.</p>
+      ${hasRatingInProgress ? `<div class="status-line in-progress"><span class="status-dot status-half"></span>Status: In progress as ${esc(state.rating.name||"you")}</div>` : ""}
+      <div class="tile-actions">
+        <button class="btn" data-action="start-rate">${hasRatingInProgress ? "Continue from last auto-save" : "Start the quiz fresh"}</button>
+        <button class="btn ghost small" data-action="trigger-progress-file-input">Load a saved progress file</button>
+      </div>
+      <input type="file" id="progress-file-input" accept=".json,application/json" style="display:none;">
+    </div>
+    <div class="tile">
+      <span class="tile-emoji">\u{1F37D}️</span>
+      <h3><span class="step-label">Step 2:</span><span class="step-title">Compare & Discuss Results</span></h3>
+      <p class="muted" style="margin-top:6px;">Import everyone's exported ratings files to build the shared results
+      page, or reopen a saved session.</p>
+      ${hasSession ? `<div class="status-line saved"><span class="status-dot status-full"></span>Status: Session saved on this device</div>` : ""}
+      <div class="tile-actions">
+        <button class="btn" data-action="${hasSession ? "go-results" : "go-combine"}">${hasSession ? "Continue from last auto-save" : "Start combining ratings"}</button>
+        <button class="btn ghost small" data-action="trigger-session-file-input">Load a saved session file</button>
+      </div>
+      <input type="file" id="session-file-input" accept=".json,application/json" multiple style="display:none;">
+    </div>
+  </div>
+
+  <div class="card instructions" style="margin-top:18px;">
+    <h2>How to take the quiz and get your results</h2>
+    <h3 style="margin:10px 0 6px;">Step 1</h3>
+    <ol>
+      <li>Each partner opens this same HTML file on their own device and clicks <strong>Start the quiz fresh</strong> under Step 1.</li>
+      <li>Rate every item: Not interested, Neutral, Def want this, or Skip — discuss later.</li>
+      <li>Need to stop partway? Click <strong>Save My Progress</strong> to download a small file, then use
+      <strong>Load a saved progress file</strong> later (even in a different browser tab) to continue exactly
+      where you left off.</li>
+      <li>Once everything's rated, click <strong>Export My Ratings</strong> to download a small .json file and send it
+      to whoever will combine results &mdash; that can be any one of you, or each of you can import everyone's files
+      independently.</li>
+    </ol>
+    <h3 style="margin:14px 0 6px;">Step 2</h3>
+    <ol start="5">
+      <li>Click <strong>Start combining ratings</strong> under Step 2, then import each partner's ratings file to
+      generate the shared results page.</li>
+      <li>Talk through anything in "Ready for deeper discussion," then move each item to "Your top, shared
+      desires" or to "Misaligned or double neutrals."</li>
+      <li>Click <strong>Save Session to Device</strong> any time to pick this back up later, or add new items as they come up
+      in conversation.</li>
+    </ol>
+    <ol start="8">
+      <li>Try dining from your smorgasbord, get curious, revise as you learn what works better for you and your
+      partner(s).</li>
+    </ol>
+  </div>
+
+  <div class="card instructions" style="margin-top:18px;">
+    <h2>Want to learn more first?</h2>
+    <p>Based on the Relationship Anarchy Smorgasbord popularized via the Attachment Project / Andie Nordgren's
+    Relationship Anarchy Manifesto. This tool is informational, not therapy or relationship advice.</p>
+    <ul>
+      <li><a href="https://www.attachmentproject.com/enm/relationship-anarchy/#:~:text=openness%20is%20chief.-,The%20Relationship%20Anarchy%20Smorgasbord,-In%20an%20attempt" target="_blank" rel="noopener noreferrer">Attachment Project &mdash; "The Relationship Anarchy Smorgasbord"</a></li>
+      <li><a href="https://www.youtube.com/watch?v=WuRGdjp3dcI&t=402s" target="_blank" rel="noopener noreferrer">Multiamory Podcast, Episode 339 &mdash; "The Smorgasbord of Relationships"</a></li>
+      <li><a href="https://www.emilyduffytherapy.co.uk/post/how-to-use-the-RA-smorgasbord" target="_blank" rel="noopener noreferrer">Emily Duffy Therapy &mdash; "How to Use the RA Smorgasbord"</a></li>
+      <li><a href="https://www.notion.com/fr/templates/relationship-anarchy-smorgasboard-menu" target="_blank" rel="noopener noreferrer">Notion &mdash; "Relationship Anarchy Smorgasboard Menu" Template</a></li>
+      <li><a href="https://www.therelationshipanarchist.com/relationship-anarchy-guide" target="_blank" rel="noopener noreferrer">The Relationship Anarchist &mdash; "Relationship Anarchy Guide"</a></li>
+    </ul>
+  </div>
+
+  <!--
+  <div class="card instructions" style="margin-top:18px;">
+    <h2>Tips for sharing the quiz on phones</h2>
+    <p class="muted">If a partner will be rating on their phone, how they open the HTML file affects whether their
+    progress reliably saves. It works best to save the file first instead of tapping it straight from a text message.</p>
+    <div class="phone-tips-grid">
+      <div class="phone-tip-card">
+        <h3>iPhone</h3>
+        <ol>
+          <li>Tap the file, then tap the share icon and choose "Save to Files."</li>
+          <li>Open the Files app, find it, tap once, then tap the share icon again and choose "Open in Safari."</li>
+          <li>Fill it out from there.</li>
+        </ol>
+      </div>
+      <div class="phone-tip-card">
+        <h3>Android</h3>
+        <ol>
+          <li>Tap the file — it'll download to your Downloads folder.</li>
+          <li>Open it from Downloads (or the download notification) — it opens in Chrome.</li>
+          <li>Fill it out from there.</li>
+        </ol>
+      </div>
+    </div>
+    <p class="muted" style="margin-bottom:0;">Doing it this way makes auto-saving quiz progress far more reliable.
+    And if someone gets interrupted partway either way, they can hit <strong>Save My Progress</strong> to download a
+    small file to resume from later.</p>
+  </div>
+  -->
+  `;
+}
+
+/* ============================= RATE VIEW ============================= */
+function ensureRatingState(){
+  if(!state.rating || state.rating.submitted){
+    state.rating = { name:"", ratings:{} };
+  }
+}
+function ratingProgress(){
+  const total = ALL_ITEMS.length;
+  const answered = Object.keys(state.rating.ratings).length;
+  return { total, answered };
+}
+
+function renderRate(){
+  ensureRatingState();
+  const { total, answered } = ratingProgress();
+  const pct = Math.round((answered/total)*100);
+  const nameSet = !!state.rating.name;
+
+  const showHints = !!state.showHints;
+
+  let itemsHtml = "";
+  CATEGORIES.forEach(cat=>{
+    const catSlug = slugify(cat.name);
+    itemsHtml += `<div class="category-block"><div class="category-title">${esc(cat.name)}</div>`;
+    if(showHints && cat.desc){
+      itemsHtml += `<div class="category-desc">${esc(cat.desc)}</div>`;
+    }
+    cat.items.forEach(label=>{
+      const id = catSlug+"__"+slugify(label);
+      const current = state.rating.ratings[id];
+      const isAnswered = !!current;
+      const itemHint = ITEM_HINTS[id];
+      const renderPill = (opt)=>`
+        <div class="pill opt-${opt.value} ${current===opt.value?'selected':''}"
+             data-action="rate-item" data-item="${id}" data-value="${opt.value}">${esc(opt.label)}</div>`;
+      itemsHtml += `
+      <div class="item-row">
+        <div>
+          <div class="item-label">${esc(label)}</div>
+          ${showHints && itemHint ? `<div class="item-hint">${esc(itemHint)}</div>` : ""}
+        </div>
+        <div class="pill-group ${isAnswered?'answered':''}" data-item="${id}">
+          ${RATING_OPTIONS.map(opt=>renderPill(opt)).join("")}
+        </div>
+      </div>`;
+    });
+    itemsHtml += `</div>`;
+  });
+
+  return `
+  ${topBar('Private rating — your partner cannot see this screen or your answers here. Later, on the compiled results screen, you and your partner(s) will see items everyone rated "Def want this" or "Skip — discuss later," plus a list of "Neutral" items. Your "Not interested" answers are never shown to anyone else.')}
+  <div class="card">
+    <label class="field-label">Your name (shown to your partner(s) in the results)</label>
+    <input type="text" id="rater-name" placeholder="e.g. Alex" value="${esc(state.rating.name)}" data-action="set-name">
+  </div>
+
+  <div class="card">
+    <div class="progress-wrap">
+      <div class="progress-text" id="progress-text">${answered} of ${total} rated</div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:${pct}%;"></div></div>
+      <button class="btn ghost small hint-toggle-btn" data-action="toggle-hints">${showHints ? '<span class="emoji">\u{1F4A1}</span> Hide hints' : '<span class="emoji">\u{1F4A1}</span> Show hints'}</button>
+    </div>
+    ${itemsHtml}
+  </div>
+
+  <div class="card row between">
+    <div class="muted" style="font-size:0.85rem;max-width:420px;">
+      Not done? Click <strong>Save My Progress</strong> any time — it downloads a small file you can re-import
+      later to pick up exactly where you left off, even on a different browser tab or if this device forgets you.
+      <strong>When you're done</strong> and rated everything, export your final ratings and send that file to whoever is compiling results.
+    </div>
+    <div class="row">
+      <button class="btn secondary" id="save-progress-btn" data-action="save-progress" ${(!nameSet) ? "disabled" : ""}>
+        Save My Progress
+      </button>
+      <button class="btn" id="export-ratings-btn" data-action="export-ratings" ${(!nameSet || answered<total) ? "disabled" : ""}>
+        Export My Ratings
+      </button>
+    </div>
+  </div>
+  `;
+}
+
+/* ============================= COMBINE VIEW ============================= */
+function renderCombine(){
+  const files = state.loadedFiles || [];
+  const participantCount = new Set(files.filter(f=>f.type==="ratings").map(f=>f.participant)).size;
+  const hasSessionFile = files.some(f=>f.type==="session");
+
+  return `
+  ${topBar("Import ratings files (or a saved session file) to build the results page")}
+  <div class="card">
+    <h2>Import files</h2>
+    <p class="muted">Import each partner's exported ratings (.json) file. If you're returning to update a
+    previously saved session, import that session file instead (or in addition).</p>
+    <div class="file-drop" id="file-drop-zone" data-action="trigger-file-input">
+      <div class="emoji">\u{1F4C2}</div>
+      <div style="font-weight:600;margin-top:6px;">Click to choose file(s), or drag & drop them here</div>
+      <div class="muted" style="font-size:0.82rem;margin-top:4px;">Accepts multiple .json files at once</div>
+    </div>
+    <input type="file" id="file-input" accept=".json,application/json" multiple style="display:none;">
+
+    ${files.length ? `
+      <div style="margin-top:16px;">
+        ${files.map((f,i)=>`
+          <div class="loaded-file">
+            <div>
+              ${f.type==="ratings" ? `<span class="emoji">\u{1F4DD}</span> <strong>${esc(f.participant)}</strong> — ratings file` : `<span class="emoji">\u{1F4BE}</span> Saved session (${(f.participants||[]).map(esc).join(", ")})`}
+              <span class="muted"> &middot; loaded ${esc(f.timestamp||"")}</span>
+            </div>
+            <button class="btn small ghost" data-action="remove-loaded-file" data-index="${i}">Remove</button>
+          </div>
+        `).join("")}
+      </div>
+    ` : `<div class="empty-state">No files loaded yet.</div>`}
+  </div>
+
+  <div class="card row between">
+    <div class="muted" style="font-size:0.85rem;">
+      ${participantCount>0 ? `${participantCount} partner ratings file(s) loaded.` : ""}
+      ${hasSessionFile ? " Includes a saved session." : ""}
+      ${(!files.length) ? "Load at least two partners' ratings files (or a saved session) to continue." : ""}
+    </div>
+    <button class="btn" data-action="build-results" ${files.length ? "" : "disabled"}>Build / Refresh Results</button>
+  </div>
+  `;
+}
+
+/* ============================= MERGE LOGIC ============================= */
+function newEmptySession(){
+  return { type:"smorgasbord-session", version:1, participants:[], items:{}, customCounter:0, createdAt: new Date().toISOString(), lastUpdated: new Date().toISOString() };
+}
+
+function computeAutoStatus(ratingsByParticipant){
+  const entries = Object.entries(ratingsByParticipant);
+  if(entries.length===0) return { status:"parked", reason:"unrated" };
+  const discussers = entries.filter(([,v])=>v==="discuss").map(([n])=>n);
+  if(discussers.length>0) return { status:"discuss", reason:"flagged", by: discussers };
+  const values = entries.map(([,v])=>v);
+  if(values.every(v=>v==="definitely")) return { status:"platter", reason:"unanimous" };
+  // If everyone who rated this said "Not Interested," it never surfaces anywhere —
+  // that answer stays private and the item is simply left off the results page.
+  if(values.every(v=>v==="not_interested")) return { status:"hidden", reason:"unanimous-not-interested" };
+  const hasDef = values.some(v=>v==="definitely");
+  const hasNo = values.some(v=>v==="not_interested");
+  // Someone wants it, someone doesn't — worth a conversation, but we never reveal
+  // *who* said "Not Interested" or that that option was even chosen.
+  if(hasDef && hasNo) return { status:"discuss", reason:"conflict" };
+  return { status:"parked", reason:"low-interest" };
+}
+
+function mergeRatingsFileIntoSession(session, ratingsFile){
+  if(!session.participants.includes(ratingsFile.participant)){
+    session.participants.push(ratingsFile.participant);
+  }
+  ALL_ITEMS.forEach(item=>{
+    if(!session.items[item.id]){
+      session.items[item.id] = {
+        category: item.category, label: item.label,
+        ratingsByParticipant: {}, status:"parked", movedManually:false, isCustom:false
+      };
+    }
+    const val = ratingsFile.ratings[item.id];
+    if(val){
+      session.items[item.id].ratingsByParticipant[ratingsFile.participant] = val;
+    }
+  });
+  recomputeAllStatuses(session);
+  session.lastUpdated = new Date().toISOString();
+}
+
+function recomputeAllStatuses(session){
+  Object.values(session.items).forEach(it=>{
+    if(it.movedManually || it.isCustom) return;
+    const r = computeAutoStatus(it.ratingsByParticipant);
+    it.status = r.status;
+    it.statusReason = r.reason;
+    it.flaggedBy = r.by || [];
+  });
+}
+
+/* ============================= COMBINE ACTIONS ============================= */
+function handleFilesSelected(fileList, onDone){
+  const files = Array.from(fileList);
+  let remaining = files.length;
+  if(remaining===0) return;
+  files.forEach(f=>{
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      try{
+        const data = JSON.parse(e.target.result);
+        if(data.type === "smorgasbord-ratings"){
+          state.loadedFiles.push({
+            type:"ratings", participant:data.participant, timestamp:new Date().toLocaleString(), raw:data
+          });
+        } else if(data.type === "smorgasbord-session"){
+          state.loadedFiles.push({
+            type:"session", participants:data.participants, timestamp:new Date().toLocaleString(), raw:data
+          });
+        } else {
+          showToast("Unrecognized file: "+f.name);
+        }
+      }catch(err){
+        showToast("Couldn't read "+f.name);
+      }
+      remaining--;
+      if(remaining===0){
+        persist();
+        if(onDone) onDone(); else render();
+      }
+    };
+    reader.readAsText(f);
+  });
+}
+
+// Home's "Load a saved session file" shortcut: if a full session file is loaded, jump straight
+// into the results view (mirroring how loading a rating-progress file jumps straight into
+// Rate). If only ratings files come in, stage them on the Combine screen for merging instead.
+function handleHomeSessionFileSelected(fileList){
+  handleFilesSelected(fileList, function(){
+    const hasSessionFile = state.loadedFiles.some(f=>f.type==="session");
+    if(hasSessionFile){
+      buildResultsFromLoadedFiles();
+    } else if(state.loadedFiles.length){
+      state.view = "combine";
+      persist();
+      render();
+    } else {
+      render();
+    }
+  });
+}
+
+function buildResultsFromLoadedFiles(){
+  let session = state.session || newEmptySession();
+  // Apply session files first (as base), then ratings files (as updates)
+  state.loadedFiles.filter(f=>f.type==="session").forEach(f=>{
+    session = f.raw;
+  });
+  state.loadedFiles.filter(f=>f.type==="ratings").forEach(f=>{
+    mergeRatingsFileIntoSession(session, f.raw);
+  });
+  state.session = session;
+  state.loadedFiles = [];
+  state.view = "results";
+  persist();
+  render();
+}
+
+/* ============================= RESULTS VIEW ============================= */
+// Per-section open/closed state. Platter starts open (it's the headline), Discuss starts
+// closed (you open it when you're ready to talk), the rest start closed/tucked away.
+let sectionOpen = { platter:true, discuss:false, parked:false, removed:false };
+
+function groupItemsByCategory(itemEntries){
+  const map = {};
+  itemEntries.forEach(([id,it])=>{
+    if(!map[it.category]) map[it.category] = [];
+    map[it.category].push([id,it]);
+  });
+  return map;
+}
+
+function renderRatingsDetail(it){
+  // "Not Interested" answers are never shown to anyone else — omit them entirely,
+  // don't just relabel them, so no one can infer who answered that way.
+  const parts = Object.entries(it.ratingsByParticipant)
+    .filter(([,val])=>val!=="not_interested")
+    .map(([name,val])=>{
+      const opt = RATING_OPTIONS.find(o=>o.value===val);
+      return `${esc(name)}: ${opt?esc(opt.label):esc(val)}`;
+    });
+  return parts.join("<br>");
+}
+
+// Favorited items float to the top of their section, pulled out of the normal category
+// grouping so they're immediately visible without scrolling. The rest of the section still
+// groups by category as usual. The heading and star label are section-specific: platter/
+// removed items use the default "Top Desires" / "Priority for us" framing, but Discuss and
+// Misaligned/double-neutrals get their own framing since "favoriting" means something different there
+// (surfacing what to talk about first vs. what to double-check later).
+const FAVORITES_BLOCK_TITLES = { discuss:"AGENDA TOPICS", parked:"FLAGGED" };
+const FAVORITE_STAR_LABELS = { discuss:"Priority for discussion", parked:"Priority for review" };
+
+function renderSectionBody(list, kind){
+  const favs = list.filter(([,it])=>it.favorite);
+  const rest = list.filter(([,it])=>!it.favorite);
+  let html = "";
+  if(favs.length){
+    const blockTitle = FAVORITES_BLOCK_TITLES[kind] || "Top Desires";
+    html += `<div class="favorites-block">
+      <div class="category-title">${esc(blockTitle)}</div>
+      ${favs.map(([id,it])=>renderResultItem(id,it,kind,{showCategory:true})).join("")}
+    </div>`;
+  }
+  const grouped = groupItemsByCategory(rest);
+  html += Object.keys(grouped).sort().map(cat=>`
+    <div class="category-block">
+      <div class="category-title">${esc(cat)}</div>
+      ${grouped[cat].map(([id,it])=>renderResultItem(id,it,kind)).join("")}
+    </div>
+  `).join("");
+  return html;
+}
+
+function renderAccordionSection(key, emoji, title, count, bodyHtml){
+  const isOpen = !!sectionOpen[key];
+  return `
+  <div class="results-accordion">
+    <div class="accordion-header ${isOpen?'open':''}" data-action="toggle-section" data-section="${key}">
+      <div class="accordion-header-label">
+        <span class="emoji">${emoji}</span>
+        <span>${title}</span>
+      </div>
+      <div class="accordion-header-right">
+        <span class="count">${count}</span>
+        <span class="chevron ${isOpen?'open':''}">▼</span>
+      </div>
+    </div>
+    <div class="accordion-body ${isOpen?'':'collapsed'}">
+      ${bodyHtml}
+    </div>
+  </div>`;
+}
+
+// Muted, tasteful palette cycled across however many category wedges are needed — spans
+// plum/lavender through gold so it stays legible and on-theme with the plaque's ink/cream look.
+const CERT_WEDGE_COLORS = [
+  "#e4d9f0","#d3c0e8","#c2a7df","#b18ed6",
+  "#e9dab8","#ddc48f","#d1ae66","#c5983f",
+  "#e6c9d6","#dab0c2","#ce97ae","#c27e9a"
+];
+
+// Breaks a long item label into multiple short lines (by word count, not real text
+// measurement) so it has a fighting chance of staying inside its wedge on the printed page.
+function wrapCertLabel(label, maxChars){
+  const words = String(label).split(" ");
+  const lines = [];
+  let current = "";
+  words.forEach(w=>{
+    const test = current ? current+" "+w : w;
+    if(test.length > maxChars && current){ lines.push(current); current = w; }
+    else current = test;
+  });
+  if(current) lines.push(current);
+  return lines;
+}
+
+// Builds the pie/wheel SVG: one equal-angle wedge per category present on the platter (so it
+// always forms a complete circle, regardless of how many categories a couple ends up with),
+// category name labeled just outside the rim, and that category's item labels stacked inside.
+function buildCertificateWheelSvg(groupedByCategory){
+  const categories = Object.keys(groupedByCategory).sort();
+  const n = categories.length;
+  if(n === 0) return "";
+  const size = 640, cx = size/2, cy = size/2, r = 220, labelR = r + 36, itemR = r * 0.6;
+  const maxChars = n <= 4 ? 22 : (n <= 8 ? 16 : 12);
+  // Category labels sit outside the rim and, unlike item labels, are bold/uppercase (wider per
+  // character) and were previously a single un-wrapped line — long names like "Collaborative
+  // Partnership" or "Co-Caregiving" would run past the SVG's viewBox and get clipped on export/
+  // print. Wrapping them (same word-wrap helper as the item labels) plus a generous horizontal
+  // viewBox margin below keeps that from happening in all but the most extreme cases.
+  const maxLabelChars = n <= 4 ? 20 : (n <= 8 ? 14 : 10);
+  const padX = 110, padY = 22;
+
+  function polar(radius, angleDeg){
+    const rad = (angleDeg - 90) * Math.PI / 180; // -90 so angle 0 points to 12 o'clock
+    return { x: cx + radius * Math.cos(rad), y: cy + radius * Math.sin(rad) };
+  }
+
+  let wedgesSvg = "", labelsSvg = "", itemsSvg = "";
+
+  categories.forEach((cat, i)=>{
+    const start = i * (360/n);
+    const end = (i+1) * (360/n);
+    const mid = (start+end)/2;
+    const color = CERT_WEDGE_COLORS[i % CERT_WEDGE_COLORS.length];
+
+    if(n === 1){
+      wedgesSvg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${color}" stroke="#fdfaf3" stroke-width="3"/>`;
+    } else {
+      const p1 = polar(r, start), p2 = polar(r, end);
+      const largeArc = (end-start) > 180 ? 1 : 0;
+      wedgesSvg += `<path d="M${cx},${cy} L${p1.x.toFixed(2)},${p1.y.toFixed(2)} A${r},${r} 0 ${largeArc} 1 ${p2.x.toFixed(2)},${p2.y.toFixed(2)} Z" fill="${color}" stroke="#fdfaf3" stroke-width="3"/>`;
+    }
+
+    const lp = polar(labelR, mid);
+    let anchor = "middle";
+    if(n > 1){
+      if(mid > 15 && mid < 165) anchor = "start";
+      else if(mid > 195 && mid < 345) anchor = "end";
+    }
+    const labelLines = wrapCertLabel(cat, maxLabelChars);
+    const labelLineHeight = 15;
+    const labelTotalHeight = labelLines.length * labelLineHeight;
+    labelLines.forEach((line, li)=>{
+      const ly = lp.y - labelTotalHeight/2 + li*labelLineHeight + labelLineHeight*0.75;
+      labelsSvg += `<text x="${lp.x.toFixed(2)}" y="${ly.toFixed(2)}" class="cert-wheel-label" text-anchor="${anchor}">${esc(line)}</text>`;
+    });
+
+    const rawItems = groupedByCategory[cat].map(([,it])=>it.label);
+    const lines = [];
+    rawItems.forEach(label=>{ wrapCertLabel(label, maxChars).forEach(l=>lines.push(l)); });
+    const lineHeight = 14;
+    const totalHeight = lines.length * lineHeight;
+    const base = polar(itemR, mid);
+    lines.forEach((line, li)=>{
+      const y = base.y - totalHeight/2 + li*lineHeight + lineHeight*0.75;
+      itemsSvg += `<text x="${base.x.toFixed(2)}" y="${y.toFixed(2)}" class="cert-wheel-item" text-anchor="middle">${esc(line)}</text>`;
+    });
+  });
+
+  return `<svg viewBox="${-padX} ${-padY} ${size+2*padX} ${size+2*padY}" class="cert-wheel-svg" xmlns="http://www.w3.org/2000/svg">
+    ${wedgesSvg}${itemsSvg}${labelsSvg}
+  </svg>`;
+}
+
+// One-page, print-only "plaque" of just the Platter items — deliberately styled like a printed
+// certificate (serif type, ornamental border, cream background, category wheel) rather than a
+// webpage, since it's meant to be saved as a PDF via the browser's print dialog and framed/printed.
+function renderCertificate(session, platterEntries){
+  if(!session) return "";
+  const names = session.participants.join(" & ");
+  const dateStr = new Date().toLocaleDateString(undefined, { year:"numeric", month:"long", day:"numeric" });
+  const grouped = groupItemsByCategory(platterEntries);
+  const bodyHtml = platterEntries.length
+    ? `<div class="cert-wheel-wrap">${buildCertificateWheelSvg(grouped)}</div>`
+    : `<div class="cert-empty">Nothing on the platter yet — once you both agree on items, they'll appear here.</div>`;
+
+  return `
+  <div id="print-certificate" class="print-only">
+    <div class="cert-border">
+      <div class="cert-inner">
+        <div class="cert-heart">♥</div>
+        <div class="cert-title">Relationship<br>Smorgasbord</div>
+        <div class="cert-for">for ${esc(names)}</div>
+        ${bodyHtml}
+        <div class="cert-footer">Created together on ${dateStr}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderResults(){
+  const session = state.session;
+  if(!session){
+    return `${topBar("")}<div class="card empty-state">No results yet. Go to Combine Ratings to build a session.</div>
+    <div class="card"><button class="btn" data-action="go-combine">Combine Ratings</button></div>`;
+  }
+  // Items everyone rated "Not Interested" are fully excluded — they never render
+  // anywhere on this page, so that answer is never exposed to a partner.
+  const entries = Object.entries(session.items).filter(([,it])=>it.status!=="hidden");
+  const platter = entries.filter(([,it])=>it.status==="platter");
+  const discuss = entries.filter(([,it])=>it.status==="discuss");
+  const parked = entries.filter(([,it])=>it.status==="parked");
+  const removed = entries.filter(([,it])=>it.status==="removed");
+
+  const platterBody = platter.length ? renderSectionBody(platter,"platter") : `<div class="empty-state">Nothing here yet — items land here once everyone rates them "Def want this."</div>`;
+  const discussBody = discuss.length ? renderSectionBody(discuss,"discuss") : `<div class="empty-state">Nothing flagged for discussion right now.</div>`;
+  const parkedBody = parked.length ? renderSectionBody(parked,"parked") : `<div class="empty-state">Nothing here.</div>`;
+  const removedBody = removed.length ? renderSectionBody(removed,"removed") : `<div class="empty-state">Nothing removed. Anything you remove from a section above lands here so you can bring it back later.</div>`;
+
+  return `
+  ${topBar("", `<button class="btn ghost" data-action="go-combine">Import Ratings</button>`)}
+
+  <div class="card results-hero">
+    <h2 class="results-hero-title">Nom nom</h2>
+    <div class="results-hero-names">${session.participants.map(esc).join(" & ")}</div>
+    <div class="row results-hero-actions">
+      <button class="btn small" data-action="export-session">Save Session to Device</button>
+    </div>
+  </div>
+
+  ${renderAccordionSection("platter", "\u{1F49C}", "Your top, shared desires", platter.length, platterBody)}
+  ${renderAccordionSection("discuss", "\u{1F914}", "Ready for deeper discussion", discuss.length, discussBody)}
+  ${renderAccordionSection("parked", "\u{2B07}️", "Misaligned or double neutrals", parked.length, parkedBody)}
+  ${renderAccordionSection("removed", "\u{1F5D1}️", "Recently Removed Items", removed.length, removedBody)}
+
+  <div class="add-item-footer">
+    <h2>Add a custom item</h2>
+    <p class="muted">Something came up in conversation that isn't on the original list? Add it directly to a
+    section below.</p>
+    <div class="add-item-form">
+      <div>
+        <label class="field-label">Category</label>
+        <select id="new-item-category">
+          ${CATEGORIES.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join("")}
+          <option value="Other">Other / Not Listed</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Item name</label>
+        <input type="text" id="new-item-label" placeholder="e.g. Joint travel planning">
+      </div>
+      <div>
+        <label class="field-label">Suggested by (optional)</label>
+        <input type="text" id="new-item-by" placeholder="e.g. Alex">
+      </div>
+      <div>
+        <label class="field-label">Place it on</label>
+        <select id="new-item-status">
+          <option value="platter">Your top, shared desires</option>
+          <option value="discuss" selected>Ready for deeper discussion</option>
+          <option value="parked">Misaligned or double neutrals</option>
+        </select>
+      </div>
+      <div><button class="btn" data-action="add-custom-item">Add Item</button></div>
+    </div>
+  </div>
+
+  <div class="card row between">
+    <div>
+      <div class="muted" style="font-size:0.85rem;">Ready to keep a copy?</div>
+      <h2 style="margin-top:2px;">Print your unique platter</h2>
+      <p class="muted" style="margin:4px 0 0;">Opens your browser's print dialog — choose "Save as PDF" for a
+      one-page, 8.5×11 keepsake of everything you both agreed on.</p>
+    </div>
+    <button class="btn" data-action="print-certificate"><span class="emoji">\u{1F5A8}️</span> Print a PDF</button>
+  </div>
+
+  <div class="footer-note">Session last updated ${new Date(session.lastUpdated).toLocaleString()}. Save your
+  session file to keep this up to date across devices and future conversations.</div>
+
+  ${renderCertificate(session, platter)}
+  `;
+}
+
+function renderResultItem(id, it, kind, opts){
+  opts = opts || {};
+  const categoryTag = opts.showCategory ? `<div class="item-category-tag">${esc(it.category)}</div>` : "";
+  let flagLine = "";
+  if(kind==="discuss"){
+    if(it.statusReason==="flagged" && it.flaggedBy && it.flaggedBy.length){
+      flagLine = `<div class="flag-note">Added to the discussion agenda by ${it.flaggedBy.map(esc).join(" & ")}</div>`;
+    } else if(it.statusReason==="conflict"){
+      flagLine = `<div class="flag-note">Mixed ratings — worth talking through</div>`;
+    } else if(it.isCustom){
+      flagLine = `<div class="flag-note">${it.addedBy ? "Suggested by "+esc(it.addedBy) : "Added during discussion"}</div>`;
+    }
+  } else if(kind==="removed"){
+    flagLine = `<div class="flag-note">Removed${it.removedAt ? " on "+new Date(it.removedAt).toLocaleDateString() : ""}</div>`;
+  } else if(it.isCustom){
+    flagLine = `<div class="flag-note">${it.addedBy ? "Suggested by "+esc(it.addedBy) : "Manually added"}</div>`;
+  }
+  const detail = Object.keys(it.ratingsByParticipant||{}).length ? `<div class="ratings-detail">${renderRatingsDetail(it)}</div>` : "";
+
+  let actions = "";
+  if(kind==="discuss"){
+    actions = `
+      <div class="result-item-actions">
+        <button class="btn small" data-action="move-item" data-id="${id}" data-target="platter">Move to Shared Desires</button>
+        <button class="btn small ghost" data-action="move-item" data-id="${id}" data-target="parked">Move to Misaligned</button>
+        <button class="btn small danger-outline" data-action="remove-item" data-id="${id}">Remove</button>
+      </div>`;
+  } else if(kind==="parked"){
+    actions = `
+      <div class="result-item-actions">
+        <button class="btn small secondary" data-action="move-item" data-id="${id}" data-target="discuss">Move to Discussion</button>
+        <button class="btn small ghost" data-action="move-item" data-id="${id}" data-target="platter">Move to Shared Desires</button>
+        <button class="btn small danger-outline" data-action="remove-item" data-id="${id}">Remove</button>
+      </div>`;
+  } else if(kind==="platter"){
+    actions = `
+      <div class="result-item-actions">
+        <button class="btn small ghost" data-action="move-item" data-id="${id}" data-target="discuss">Move to Discussion</button>
+        <button class="btn small danger-outline" data-action="remove-item" data-id="${id}">Remove</button>
+      </div>`;
+  } else if(kind==="removed"){
+    actions = `
+      <div class="result-item-actions">
+        <button class="btn small secondary" data-action="restore-item" data-id="${id}">Restore</button>
+        <button class="btn small danger-outline" data-action="delete-permanent" data-id="${id}">Delete Permanently</button>
+      </div>`;
+  }
+
+  const isFav = !!it.favorite;
+  const favLabel = FAVORITE_STAR_LABELS[kind] || "Priority for us";
+  return `
+  <div class="result-item ${kind}-item ${isFav?'favorited':''}">
+    <div class="result-item-top">
+      <div class="result-item-main">
+        ${categoryTag}
+        <strong>${esc(it.label)}</strong>
+        ${flagLine}
+        ${detail}
+      </div>
+      <div class="favorite-control">
+        ${isFav ? `<span class="very-important-label">${esc(favLabel)}</span>` : ""}
+        <button class="star-btn ${isFav?'active':''}" data-action="toggle-favorite" data-id="${id}"
+                aria-label="${isFav ? 'Remove from '+esc(favLabel) : 'Mark as '+esc(favLabel)}" title="${isFav ? 'Remove from '+esc(favLabel) : 'Mark as '+esc(favLabel)}">${isFav ? '★' : '☆'}</button>
+      </div>
+    </div>
+    ${actions}
+  </div>`;
+}
+
+/* ============================= RESULTS ACTIONS ============================= */
+const STATUS_LABELS = { platter:"Your top, shared desires", discuss:"Ready for deeper discussion", parked:"Misaligned or double neutrals" };
+
+function toggleFavorite(id){
+  const it = state.session.items[id];
+  if(!it) return;
+  it.favorite = !it.favorite;
+  state.session.lastUpdated = new Date().toISOString();
+  persist();
+  withScrollPreserved(render);
+  showToast(it.favorite ? "Marked as very important" : "Removed from favorites");
+}
+function moveItem(id, target){
+  const it = state.session.items[id];
+  if(!it) return;
+  it.status = target;
+  it.movedManually = true;
+  state.session.lastUpdated = new Date().toISOString();
+  persist();
+  withScrollPreserved(render);
+  showToast("Moved to "+(STATUS_LABELS[target]||target));
+}
+// Removing an item is non-destructive: it moves to "Recently Removed Items" so it can be
+// restored later. Permanent deletion is a separate, explicit action from that section.
+function removeItem(id){
+  const it = state.session.items[id];
+  if(!it) return;
+  it.previousStatus = it.status;
+  it.status = "removed";
+  it.movedManually = true;
+  it.removedAt = new Date().toISOString();
+  state.session.lastUpdated = new Date().toISOString();
+  persist();
+  withScrollPreserved(render);
+  showToast("Moved to Recently Removed Items");
+}
+function restoreItem(id){
+  const it = state.session.items[id];
+  if(!it) return;
+  it.status = it.previousStatus || "parked";
+  it.movedManually = true;
+  delete it.removedAt;
+  delete it.previousStatus;
+  state.session.lastUpdated = new Date().toISOString();
+  persist();
+  withScrollPreserved(render);
+  showToast("Restored to "+(STATUS_LABELS[it.status]||"results"));
+}
+function deletePermanent(id){
+  if(!confirm("Permanently delete this item? This can't be undone.")) return;
+  delete state.session.items[id];
+  state.session.lastUpdated = new Date().toISOString();
+  persist();
+  withScrollPreserved(render);
+}
+function addCustomItem(){
+  const category = document.getElementById("new-item-category").value;
+  const label = document.getElementById("new-item-label").value.trim();
+  const by = document.getElementById("new-item-by").value.trim();
+  const status = document.getElementById("new-item-status").value;
+  if(!label){ showToast("Enter an item name first"); return; }
+  if(!state.session) state.session = newEmptySession();
+  state.session.customCounter = (state.session.customCounter||0)+1;
+  const id = "custom__"+slugify(category)+"__"+slugify(label)+"__"+state.session.customCounter;
+  state.session.items[id] = {
+    category: category, label: label, ratingsByParticipant:{}, status: status,
+    movedManually:true, isCustom:true, addedBy: by||null
+  };
+  state.session.lastUpdated = new Date().toISOString();
+  persist();
+  render();
+  showToast("Added “"+label+"”");
+}
+
+/* ============================= EXPORT ACTIONS ============================= */
+function exportRatings(){
+  const { total, answered } = ratingProgress();
+  if(answered < total){ showToast("Please rate every item before exporting."); return; }
+  if(!state.rating.name){ showToast("Enter your name first"); return; }
+  const payload = {
+    type:"smorgasbord-ratings", version:1,
+    participant: state.rating.name, timestamp: new Date().toISOString(),
+    ratings: state.rating.ratings
+  };
+  downloadJSON(payload, `smorgasbord-ratings-${slugify(state.rating.name)}-${filenameTimestamp()}.json`);
+  state.rating.submitted = true;
+  persist();
+  showToast("Exported! Send this file to whoever is compiling results.");
+}
+function exportProgress(){
+  if(!state.rating.name){ showToast("Enter your name first"); return; }
+  const { answered, total } = ratingProgress();
+  const payload = {
+    type:"smorgasbord-progress", version:1,
+    participant: state.rating.name, timestamp: new Date().toISOString(),
+    ratings: state.rating.ratings
+  };
+  downloadJSON(payload, `smorgasbord-progress-${slugify(state.rating.name)}-${filenameTimestamp()}.json`);
+  showToast(`Progress saved (${answered} of ${total} rated). Keep this file — you can resume from it any time.`);
+}
+function handleProgressFileSelected(file){
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      if(data.type==="smorgasbord-progress" || data.type==="smorgasbord-ratings"){
+        state.rating = { name: data.participant||"", ratings: Object.assign({}, data.ratings||{}), submitted:false };
+        state.view = "rate";
+        persist();
+        render();
+        showToast(data.participant ? `Resumed as ${data.participant} — pick up where you left off.` : "Resumed — pick up where you left off.");
+      } else {
+        showToast("That doesn't look like a smorgasbord ratings/progress file.");
+      }
+    }catch(err){
+      showToast("Couldn't read that file.");
+    }
+  };
+  reader.readAsText(file);
+}
+function exportSession(){
+  if(!state.session) return;
+  downloadJSON(state.session, `smorgasbord-session-${filenameTimestamp()}.json`);
+  showToast("Session saved. Share this file to keep everyone's devices in sync.");
+}
+
+/* ============================= EVENT WIRING ============================= */
+function attachGlobalHandlers(){
+  const app = document.getElementById("app");
+
+  app.onclick = function(e){
+    const target = e.target.closest("[data-action]");
+    if(!target) return;
+    const action = target.dataset.action;
+
+    if(action==="go-home"){ state.view="home"; persist(); render(); }
+    else if(action==="reset-all"){ resetAll(); }
+    else if(action==="start-rate"){ state.view="rate"; persist(); render(); }
+    else if(action==="go-combine"){ state.view="combine"; persist(); render(); }
+    else if(action==="go-results"){ state.view="results"; persist(); render(); }
+    else if(action==="trigger-file-input"){ document.getElementById("file-input").click(); }
+    else if(action==="remove-loaded-file"){
+      state.loadedFiles.splice(parseInt(target.dataset.index,10),1);
+      persist(); render();
+    }
+    else if(action==="build-results"){ buildResultsFromLoadedFiles(); }
+    else if(action==="export-ratings"){ exportRatings(); }
+    else if(action==="save-progress"){ exportProgress(); }
+    else if(action==="trigger-progress-file-input"){ document.getElementById("progress-file-input").click(); }
+    else if(action==="trigger-session-file-input"){ document.getElementById("session-file-input").click(); }
+    else if(action==="export-session"){ exportSession(); }
+    else if(action==="move-item"){ moveItem(target.dataset.id, target.dataset.target); }
+    else if(action==="remove-item"){ removeItem(target.dataset.id); }
+    else if(action==="restore-item"){ restoreItem(target.dataset.id); }
+    else if(action==="delete-permanent"){ deletePermanent(target.dataset.id); }
+    else if(action==="toggle-favorite"){ toggleFavorite(target.dataset.id); }
+    else if(action==="print-certificate"){ window.print(); }
+    else if(action==="add-custom-item"){ addCustomItem(); }
+    else if(action==="toggle-section"){
+      const key = target.dataset.section;
+      sectionOpen[key] = !sectionOpen[key];
+      withScrollPreserved(render);
+    }
+    else if(action==="rate-item"){
+      handleRateClick(target.dataset.item, target.dataset.value);
+    }
+    else if(action==="toggle-hints"){
+      state.showHints = !state.showHints;
+      persist();
+      withScrollPreserved(render);
+    }
+  };
+
+  const nameInput = document.getElementById("rater-name");
+  if(nameInput){
+    nameInput.oninput = function(){
+      state.rating.name = nameInput.value;
+      persist();
+      const { total, answered } = ratingProgress();
+      const exportBtn = document.getElementById("export-ratings-btn");
+      if(exportBtn){
+        exportBtn.disabled = !(state.rating.name && answered===total);
+      }
+      const saveBtn = document.getElementById("save-progress-btn");
+      if(saveBtn){
+        saveBtn.disabled = !state.rating.name;
+      }
+    };
+  }
+
+  const fileInput = document.getElementById("file-input");
+  if(fileInput){
+    fileInput.onchange = function(){
+      if(fileInput.files.length) handleFilesSelected(fileInput.files);
+      fileInput.value = "";
+    };
+  }
+
+  // Drag-and-drop onto the Combine screen's file-drop zone, in addition to click-to-browse.
+  const fileDropZone = document.getElementById("file-drop-zone");
+  if(fileDropZone){
+    fileDropZone.ondragover = function(e){
+      e.preventDefault();
+      if(e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+      fileDropZone.classList.add("dragover");
+    };
+    fileDropZone.ondragleave = function(e){
+      // dragleave also fires when moving between child elements of the drop zone; only clear
+      // the highlight once the pointer has actually left the zone itself.
+      if(!fileDropZone.contains(e.relatedTarget)) fileDropZone.classList.remove("dragover");
+    };
+    fileDropZone.ondrop = function(e){
+      e.preventDefault();
+      fileDropZone.classList.remove("dragover");
+      const dropped = e.dataTransfer && e.dataTransfer.files;
+      if(dropped && dropped.length) handleFilesSelected(dropped);
+    };
+  }
+
+  const progressFileInput = document.getElementById("progress-file-input");
+  if(progressFileInput){
+    progressFileInput.onchange = function(){
+      if(progressFileInput.files.length) handleProgressFileSelected(progressFileInput.files[0]);
+      progressFileInput.value = "";
+    };
+  }
+
+  const sessionFileInput = document.getElementById("session-file-input");
+  if(sessionFileInput){
+    sessionFileInput.onchange = function(){
+      if(sessionFileInput.files.length) handleHomeSessionFileSelected(sessionFileInput.files);
+      sessionFileInput.value = "";
+    };
+  }
+
+  // The progress bar only reveals itself once its own card has scrolled up near the top of the
+  // viewport (rather than sitting there redundantly while the name field at the very top is
+  // still in view). Since render() rebuilds the DOM from scratch, re-sync its visibility to the
+  // current scroll position right away — don't wait for the next scroll event to correct it.
+  syncProgressBarScrollState();
+}
+
+function syncProgressBarScrollState(){
+  const bar = document.querySelector(".progress-wrap");
+  if(!bar) return;
+  const card = bar.closest(".card");
+  if(!card){ bar.classList.remove("scrolled"); return; }
+  // Geometry-based, not a fixed scrollY count: reveal only once the bar's own container card
+  // has scrolled up near the top of the viewport (within an 8px buffer) -- roughly the point
+  // where the sticky bar is actually about to pin itself in place. This requires meaningfully
+  // more scrolling than the old "any scrollY > 0" threshold, which revealed it after a single
+  // pixel of movement, and it scales correctly regardless of how tall the page/name-field/etc
+  // above the card happens to be.
+  bar.classList.toggle("scrolled", card.getBoundingClientRect().top <= 8);
+}
+
+function handleRateClick(itemId, value){
+  state.rating.ratings[itemId] = value;
+  persist();
+  // direct DOM update, no full re-render, to avoid losing scroll position in the long form
+  const group = document.querySelector(`.pill-group[data-item="${cssEscape(itemId)}"]`);
+  if(group){
+    group.classList.add("answered");
+    group.querySelectorAll(".pill").forEach(p=>{
+      p.classList.toggle("selected", p.dataset.value===value);
+    });
+  }
+  const { total, answered } = ratingProgress();
+  const pct = Math.round((answered/total)*100);
+  const fill = document.getElementById("progress-fill");
+  const text = document.getElementById("progress-text");
+  if(fill) fill.style.width = pct+"%";
+  if(text) text.textContent = `${answered} of ${total} rated`;
+  const exportBtn = document.getElementById("export-ratings-btn");
+  if(exportBtn){
+    exportBtn.disabled = !(state.rating.name && answered===total);
+  }
+}
+function cssEscape(s){
+  return String(s).replace(/[^a-zA-Z0-9_-]/g, "\\$&");
+}
+
+/* ============================= BACKGROUND BLOB ============================= */
+// The "interactive" blob eases toward the cursor. Deliberately event-driven (updates the
+// transform directly on mousemove, smoothed by a CSS transition) rather than a manual
+// requestAnimationFrame lerp loop — same visual effect, but with no perpetually-rescheduling
+// animation frame that would keep running (and, e.g., keep a headless/test process alive) forever.
+(function initInteractiveBlob(){
+  const interBubble = document.querySelector(".gradient-bg .interactive");
+  if(!interBubble) return;
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduceMotion) return;
+  window.addEventListener("mousemove", function(e){
+    interBubble.style.transform = `translate(${Math.round(e.clientX)}px, ${Math.round(e.clientY)}px)`;
+  });
+})();
+
+// Reveal the rate-view progress bar once the page is scrolled. A single listener attached once
+// (rather than re-attached on every render) that re-queries the current .progress-wrap each
+// time it fires, so it stays correct across the full-DOM-replace re-renders elsewhere in the app.
+window.addEventListener("scroll", syncProgressBarScrollState, { passive: true });
+
+// Re-run the auto-fit sizing on resize (debounced) and once the Google Font actually
+// finishes loading -- the first fitHeroTitle()/fitResultsNames() calls at init likely
+// measured a fallback system font, since Agu Display loads asynchronously.
+let heroTitleResizeTimer;
+window.addEventListener("resize", function(){
+  clearTimeout(heroTitleResizeTimer);
+  heroTitleResizeTimer = setTimeout(function(){ fitHeroTitle(); fitResultsNames(); }, 120);
+});
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ fitHeroTitle(); fitResultsNames(); });
+
+/* ============================= INIT ============================= */
+render();
+</script>
+</body>
+</html>
