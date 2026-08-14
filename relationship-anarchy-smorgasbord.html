@@ -61,7 +61,10 @@
     background:linear-gradient(40deg,var(--g-bg1),var(--g-bg2));
   }
   .gradient-bg svg{position:fixed;top:0;left:0;width:0;height:0;}
-  .gradient-bg .gradients-container{filter:url(#goo) blur(40px);width:100%;height:100%;opacity:0.6;}
+  /* halved from 0.6 -- this is the common parent of every blob (g1-g5 plus the mouse-following
+     .interactive one), so halving it here scales all of them down uniformly in one place
+     rather than halving each blob's own opacity individually. */
+  .gradient-bg .gradients-container{filter:url(#goo) blur(40px);width:100%;height:100%;opacity:0.3;}
   .gradient-bg .g1,.gradient-bg .g2,.gradient-bg .g3,.gradient-bg .g4,.gradient-bg .g5,.gradient-bg .interactive{
     position:absolute;mix-blend-mode:var(--g-blend);
   }
@@ -126,13 +129,28 @@
   .muted{color:var(--muted);font-size:0.92rem;}
   a{color:var(--accent-dark);}
   a:hover{color:var(--accent);}
+  /* iOS-style frosted glass: a translucent white fill blurs whatever's behind it (the
+     animated gradient blobs) instead of hiding it outright. The 0.74 alpha is deliberately
+     high rather than a "true" see-through glass look -- the blob palette is soft/pastel
+     (see --g-bg1/--g-bg2/--g-c1..5 above) with nothing near-black behind it, but that alpha
+     still guarantees the *composited* background stays light enough for --ink (#2b2530) text
+     to clear the WCAG AA 4.5:1 contrast minimum even in a worst-case fully-opaque blob behind
+     the panel, without having to trust exactly where the blur lands. Browsers without
+     backdrop-filter support (the @supports block below) get a plain solid card instead of a
+     dark, illegible see-through one. */
   .card{
-    background:var(--card);
-    border:1px solid var(--line);
+    background:rgba(255,255,255,0.74);
+    backdrop-filter:blur(20px) saturate(160%);
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
+    border:1px solid rgba(255,255,255,0.6);
     border-radius:var(--radius);
     padding:20px;
     margin-bottom:18px;
-    box-shadow:0 1px 3px rgba(60,30,60,0.04);
+    box-shadow:0 4px 24px rgba(60,30,60,0.06);
+  }
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    .card,.accordion-header:not(.open),.accordion-body{background:var(--card) !important;}
+    .tile,.category-header.with-hint{background:linear-gradient(135deg,#411c6e,#180a2a) !important;}
   }
   .btn{
     display:inline-flex;align-items:center;gap:6px;
@@ -145,6 +163,10 @@
   .btn:disabled{background:#cfc7d6;cursor:not-allowed;}
   .btn.secondary{background:#fff;color:var(--accent);border:1.5px solid var(--accent);}
   .btn.secondary:hover{background:#f4effd;}
+  /* .btn.secondary's own background/border/color (same specificity as .btn:disabled, declared
+     later in the stylesheet) otherwise wins the cascade and quietly cancels the disabled
+     look -- a disabled secondary button read as a perfectly normal, clickable one. */
+  .btn.secondary:disabled{background:#f7f5f8;color:#a89db3;border-color:#ddd4e6;cursor:not-allowed;}
   /* the default --muted/--line pair (used elsewhere for text on solid white cards, where it's fine)
      only measures ~4.2:1 text / ~1.1:1 border against this page's light gradient background --
      short of the WCAG AA 4.5:1 text and 3:1 UI-boundary minimums. Darkened here so the top-bar's
@@ -217,6 +239,14 @@
   }
   input[type=text]:focus{outline:none;border-color:var(--accent);}
   label.field-label{display:block;font-weight:600;font-size:0.85rem;margin-bottom:6px;color:var(--ink);}
+  .field-label-note{font-weight:400;font-style:italic;}
+  /* shown when Save/Export is attempted without a name -- see showNameFieldError() -- rather
+     than only the transient toast, so the specific field at fault stays visibly flagged until
+     it's fixed instead of relying on a message that's already faded by the time you look up. */
+  input[type=text].input-error{border-color:var(--danger);background:#fdf1ef;}
+  input[type=text].input-error:focus{border-color:var(--danger);}
+  .field-error{display:none;align-items:center;gap:6px;color:var(--danger);font-size:0.85rem;font-weight:600;margin-top:6px;}
+  .field-error.show{display:flex;}
   select{
     padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;
     font-size:0.92rem;background:#fff;color:var(--ink);
@@ -230,10 +260,19 @@
      accordions; the 1.25rem bump above is scoped to the quiz only, so restore the original
      smaller size specifically inside the results accordions, which weren't part of this ask. */
   .accordion-body .category-title{font-size:0.78rem;}
-  .category-desc{
-    font-size:0.85rem;color:var(--muted);line-height:1.5;margin:8px 0 14px;
-    background:#faf7fc;border:1px solid #f0e8fb;border-radius:8px;padding:10px 12px;
+  /* when hints are on, the title and its description share one box instead of the title
+     sitting outside a separate description callout -- same dark-purple glass background as the
+     Home screen's Step 1/Step 2 tiles (.tile), see the shared comment there. White text against
+     it measures ~8.7:1 worst-case, comfortably clearing the WCAG AA 4.5:1 minimum (the version
+     before that reused the progress bar's purple-to-pink gradient, which dipped to ~3.2:1 with
+     white text at its lighter/pink end -- swapped out specifically to fix that). */
+  .category-header.with-hint{
+    background:linear-gradient(135deg,rgba(65,28,110,0.85),rgba(24,10,42,0.85));
+    backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);
+    border-radius:12px;padding:14px 16px;margin-bottom:14px;
   }
+  .category-header.with-hint .category-title{color:#fff;border-bottom:none;padding-bottom:0;margin-bottom:8px;}
+  .category-desc{font-size:0.85rem;color:#fff;line-height:1.5;}
   .item-row{
     display:flex;flex-direction:column;gap:10px;
     padding:14px 0;border-bottom:1px solid var(--line);
@@ -241,6 +280,52 @@
   .item-row:last-child{border-bottom:none;}
   .item-label{font-weight:600;}
   .item-hint{font-size:0.82rem;color:var(--muted);line-height:1.4;margin-top:4px;max-width:520px;}
+  /* mobile readability pass, scoped to the quiz's own elements (category-title/desc, item-
+     label/hint, pill) -- all only ever rendered on the rate screen, so this can't affect any
+     other page. */
+  @media (max-width:700px){
+    .category-title{font-size:1.4rem;}
+    .category-desc{font-size:0.95rem;}
+    .item-label{font-size:1.1rem;}
+    .item-hint{font-size:0.92rem;}
+    .pill{font-size:0.95rem;}
+  }
+  /* Save-progress ("Save my progress, I'll come back" / "Save") is always the outline
+     (secondary) shape, never solid -- but a constant 0.5 opacity made a fully-enabled,
+     clickable button visually read as disabled. Full strength while enabled; muted only when
+     it's actually disabled (.btn.secondary:disabled, above), same as any other button. */
+  /* Save-results ("I'm done! Download my answers" / "Save my results") stays solid at every
+     stage, per the ask -- pending (not :disabled -- the button is never actually given the
+     disabled attribute, since clicking it while incomplete has to trigger fix-errors mode
+     rather than do nothing) just means a muted purple fill instead of the plain "btn"'s
+     full-strength one, not a switch to outline/gray. Once every item's rated it drops the
+     .pending class entirely and becomes the fully opaque, enabled primary action. */
+  #export-ratings-btn.pending{background:rgba(124,77,255,0.5);color:#fff;}
+  /* two-column layout for the bottom-of-quiz card: each column is its own copy+button pair
+     (save-progress on the left, save-results on the right), rather than one shared paragraph
+     above a row of two buttons. align-items:stretch (the grid default) makes both
+     .final-actions-col stretch to the taller column's height, so margin-top:auto on the button
+     pins it to the bottom of its column at this width while the copy stays top-aligned. */
+  .final-actions-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  .final-actions-col{display:flex;flex-direction:column;align-items:flex-start;}
+  .final-actions-copy{font-size:0.85rem;margin-bottom:14px;}
+  .final-actions-col > .btn{margin-top:auto;}
+  /* :not(:empty), not a flat margin-top -- the save column has no trailing hint element after
+     its button, so a flat margin on #export-disabled-hint (present even while it renders no
+     text) would sit below the export button and throw its bottom edge out of alignment with
+     the save button next to it. :empty tracks the live textContent updates in
+     syncFinalActionButtons() the same as the initial render, since both just set/clear text. */
+  #export-disabled-hint:not(:empty){margin-top:8px;}
+  /* mobile: one column, so the two .final-actions-col blocks simply stack in DOM order --
+     copy 1, button 1, copy 2, button 2 -- and each column is only as tall as its own content,
+     so margin-top:auto on the button has no extra row height to push into (no gap between the
+     copy and its button). Buttons go full-width here too, matching the prominence the end of
+     the form deserves rather than looking like small secondary buttons. */
+  @media (max-width:700px){
+    .final-actions-grid{grid-template-columns:1fr;gap:18px;}
+    .final-actions-col{align-items:stretch;}
+    .final-actions-col > .btn{margin-top:14px;width:100%;justify-content:center;padding:14px 18px;font-size:1rem;}
+  }
 
   /* ---- rating scale: one wrapping row of 4 identically-shaped pill buttons (3 rating options +
      "Skip — discuss later" as a peer, not a secondary button tucked onto its own line below).
@@ -325,17 +410,71 @@
     transition:opacity .18s ease;
   }
   .progress-wrap.scrolled{opacity:1;visibility:visible;pointer-events:auto;}
+  /* fix-errors mode's version of the same sticky bar: just a live count + an exit button, no
+     track between them (nothing to fill that middle space), so space-between takes over from
+     the normal layout's flex:1 track. Reuses .hint-toggle-btn purely for its white-on-gradient
+     ghost-button contrast, not because the exit control is a hint toggle.
+     Unlike the normal progress bar (redundant with the name field still in view, so it's fine
+     to hide until scrolled), this bar's count + exit button are the primary UI for the mode --
+     they need to be visible the instant the mode is entered, so it overrides the scroll-reveal
+     opacity/visibility instead of inheriting it. */
+  /* fix-errors mode gets its own gradient (yellow -> orange -> dark red, left to right) instead
+     of the normal purple/pink one, so the sticky bar itself signals "different mode, needs
+     attention" at a glance. This single bar now carries everything the mode needs -- emoji,
+     "N uncompleted items" label, and the exit control -- reusing .accordion-header-label/-right
+     for that inner layout (rather than the .accordion-header class itself, which brings its own
+     background/border/padding that would fight this bar's sticky/gradient one) so it still reads
+     as a sibling to "Things you already rated" below it. The deeper goldenrod start (vs. a
+     brighter lemon yellow) is deliberate -- too close to the warning emoji's own yellow and the
+     two blend together; the drop-shadow on the emoji below adds further separation. Black text
+     on it clears ~9:1 contrast at that first stop, so no chip is needed -- but the title's right
+     edge can drift well into the orange/red portion at narrow widths with a long count (e.g. "50
+     uncompleted items" at 320px lands ~77% across the bar), so the orange and red stops are both
+     lightened a step from a plain "looks good on its own" orange/red -- the worst-case position
+     still clears ~5.6:1 with room for font-rendering variance, instead of dipping to ~4.45:1
+     (just under WCAG AA's 4.5:1) with the more saturated originals. */
+  .fix-errors-bar{
+    justify-content:space-between;opacity:1;visibility:visible;pointer-events:auto;
+    background:linear-gradient(90deg,#d9a017,#f08c1a,#d32f2f);
+  }
+  /* the bar doesn't carry the .accordion-header class itself (see comment above), so it misses
+     that class's own .emoji size override -- match it explicitly rather than falling back to
+     the much larger 2.5rem app-wide default, and center the label's own align-items (its shared
+     default is flex-start, for hanging-indent wrap on long titles) since a same-size emoji and
+     single-line title should sit on the same visual center, not top-align. */
+  .fix-errors-bar .emoji{font-size:1.75rem;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.45));}
+  .fix-errors-bar .accordion-header-label{align-items:center;}
+  .fix-errors-title{color:#000;font-weight:700;font-size:1.02rem;}
+  .fix-errors-title .title-short{display:none;}
+  .fix-errors-bar .hint-toggle-btn.btn.ghost{background:rgba(0,0,0,0.5);}
+  .fix-errors-bar .hint-toggle-btn.btn.ghost:hover{background:rgba(0,0,0,0.62);}
+  /* icon-only exit button once the bar gets tight -- same breakpoint the rest of the quiz's
+     mobile pass uses (category-title/item-label/etc, see below), so it lines up with when those
+     other elements start growing and eating the sticky bar's available width. */
+  @media (max-width:700px){
+    .fix-errors-exit-btn .exit-label{display:none;}
+    /* icon-only needs its own square-and-round treatment -- the button's normal padding is
+       asymmetric (7px 12px, tuned for the wider text label), which with only the "✕" glyph left
+       reads as an oval rather than a circle. */
+    .fix-errors-exit-btn{
+      width:36px;height:36px;padding:0;
+      display:inline-flex;align-items:center;justify-content:center;
+    }
+    /* shorter count phrasing once the exit button drops its label too -- "N uncompleted items"
+       is the longest string this bar ever shows (worst case "50 uncompleted items"), and at
+       narrow widths that's what was pushing the title into a two-line wrap. */
+    .fix-errors-title .title-full{display:none;}
+    .fix-errors-title .title-short{display:inline;}
+  }
   .progress-text{font-size:0.82rem;color:#fff;flex-shrink:0;white-space:nowrap;}
   .progress-track{flex:1 1 auto;height:8px;background:rgba(255,255,255,0.35);border-radius:6px;overflow:hidden;}
   .progress-fill{height:100%;background:#fff;border-radius:6px;transition:width .2s ease;}
   .hint-toggle-btn{flex-shrink:0;}
-  /* White border/text against this gradient measures ~4.8:1 at its purple end and ~3.2:1 at its
-     lighter pink end — still clears the WCAG 3:1 minimum for non-text UI component borders at
-     the gradient's least-contrasty point (the default .btn.ghost border, var(--line), would be
-     nowhere close against a background this saturated). A dark (not light) fill keeps the white
-     text/border and the lightbulb emoji reading clearly against the button itself. */
+  /* Borderless pill instead of the default .btn.ghost outline -- a dark, fully-opaque-looking
+     fill (not the border) is what carries the contrast against the sticky bar's gradient here,
+     so the outline was redundant on top of it. */
   .hint-toggle-btn.btn.ghost{
-    border-color:rgba(255,255,255,0.9);color:#fff;background:rgba(0,0,0,0.32);
+    border:none;border-radius:999px;color:#fff;background:rgba(0,0,0,0.32);
   }
   .hint-toggle-btn.btn.ghost:hover{background:rgba(0,0,0,0.45);}
   /* the app-wide 2.5rem .emoji default was stretching this button 10px taller than Home/Start
@@ -396,7 +535,8 @@
   .results-accordion{margin-bottom:16px;}
   .accordion-header{
     cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;
-    padding:16px 20px;background:#fff;border:1.5px solid var(--line);border-radius:12px;font-weight:700;font-size:1.02rem;
+    padding:16px 20px;background:rgba(255,255,255,0.74);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);
+    border:1.5px solid rgba(255,255,255,0.6);border-radius:12px;font-weight:700;font-size:1.02rem;
     transition:background .15s ease,color .15s ease,border-color .15s ease;
   }
   /* the count + chevron live in their own flex-shrink:0 group on the right so they never get
@@ -416,7 +556,10 @@
     background:#2b2530;border-color:#2b2530;color:#fff;
     border-bottom-left-radius:0;border-bottom-right-radius:0;
   }
-  .accordion-body{padding:18px 18px 4px;border:1.5px solid var(--line);border-top:none;border-radius:0 0 12px 12px;background:#fff;}
+  .accordion-body{
+    padding:18px 18px 4px;border:1.5px solid rgba(255,255,255,0.6);border-top:none;border-radius:0 0 12px 12px;
+    background:rgba(255,255,255,0.74);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);
+  }
   .accordion-body.collapsed{display:none;}
   .chevron{transition:transform .15s ease;}
   .chevron.open{transform:rotate(180deg);}
@@ -439,9 +582,20 @@
   }
   .home-tiles{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;}
   @media (max-width:640px){.home-tiles{grid-template-columns:1fr;}}
+  /* dark counterpart to .card's light glass treatment (see the comment there), with alpha added
+     to each stop so backdrop-filter can pull the animated blobs through it, blurred. The stops
+     lean into --accent's own hue (~256°) at meaningfully higher saturation than a flat near-black
+     would give -- the original near-desaturated gray-purple read as washed out once the glass
+     blur/saturate filter was layered on top. 0.85 alpha (higher than .card's 0.74) is deliberate
+     -- the backdrop here is always some light pastel blob tint, so a *dark* glass panel needs more
+     opacity to resist being pulled lighter by it, whereas a light glass panel over the same
+     backdrop barely shifts. Worst-case composite against a near-white backdrop still measures
+     ~8.7:1 for the white text on top, comfortably clearing WCAG AA's 4.5:1 minimum. */
   .tile{
-    border:1.5px solid #382a46;border-radius:16px;padding:22px;cursor:default;
-    background:linear-gradient(135deg,#241a30,#180f22);color:#f5f0fa;
+    border:1.5px solid #4f2f7a;border-radius:16px;padding:22px;cursor:default;
+    background:linear-gradient(135deg,rgba(65,28,110,0.85),rgba(24,10,42,0.85));
+    backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);
+    color:#f5f0fa;
     box-shadow:0 2px 10px rgba(30,10,40,0.18);text-align:left;
     display:flex;flex-direction:column;
   }
@@ -486,6 +640,13 @@
   /* Fixed gap from the status line down to the buttons: exactly 2x the gap between the primary
      and secondary buttons themselves (.tile-actions gap:8px above, so 16px here). */
   .status-line + .tile-actions{margin-top:16px;}
+  /* primary ("Continue from last auto-save" / "Start ...") buttons inside a tile flip to
+     white-on-purple instead of the site-wide solid-accent-purple .btn -- against this tile's
+     now noticeably more saturated purple glass, a purple button on purple read as low-contrast
+     and blended-in rather than a clear call to action. Secondary/ghost buttons are untouched,
+     per the ask. */
+  .tile .btn:not(.ghost){background:#fff;color:var(--accent-dark);}
+  .tile .btn:not(.ghost):hover{background:#f4effd;}
   .tile .btn.ghost{color:#f0e9f7;border:1.5px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.07);}
   .tile .btn.ghost:hover{background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.55);}
   /* ghost buttons inside a tile match the size of the primary button next to them */
@@ -1009,6 +1170,7 @@ function renderHome(){
     <p>Based on the Relationship Anarchy Smorgasbord popularized via the Attachment Project / Andie Nordgren's
     Relationship Anarchy Manifesto. This tool is informational, not therapy or relationship advice.</p>
     <ul>
+      <li><a href="https://theanarchistlibrary.org/library/andie-nordgren-the-short-instructional-manifesto-for-relationship-anarchy" target="_blank" rel="noopener noreferrer">Andie Nordgren &mdash; "The Short Instructional Manifesto for Relationship Anarchy"</a></li>
       <li><a href="https://www.attachmentproject.com/enm/relationship-anarchy/#:~:text=openness%20is%20chief.-,The%20Relationship%20Anarchy%20Smorgasbord,-In%20an%20attempt" target="_blank" rel="noopener noreferrer">Attachment Project &mdash; "The Relationship Anarchy Smorgasbord"</a></li>
       <li><a href="https://www.youtube.com/watch?v=WuRGdjp3dcI&t=402s" target="_blank" rel="noopener noreferrer">Multiamory Podcast, Episode 339 &mdash; "The Smorgasbord of Relationships"</a></li>
       <li><a href="https://www.emilyduffytherapy.co.uk/post/how-to-use-the-RA-smorgasbord" target="_blank" rel="noopener noreferrer">Emily Duffy Therapy &mdash; "How to Use the RA Smorgasbord"</a></li>
@@ -1054,77 +1216,227 @@ function ensureRatingState(){
     state.rating = { name:"", ratings:{} };
   }
 }
+// Transient UI-only flag (not persisted -- a fresh page load always starts back in the normal
+// view, same as nameFieldError/sectionOpen below). Entered by clicking "I'm done!" while
+// incomplete (see exportRatings()); renderRate() checks it first thing and clears it again on
+// its own the moment nothing's left to fix, so there's no separate "auto-exit" code path to
+// keep in sync -- completion is just re-evaluated on every render like everything else here.
+let fixErrorsMode = false;
+// Transient UI-only flag (not persisted, like sectionOpen below) -- set when Save/Export is
+// attempted with no name entered, cleared as soon as the user starts typing one. renderRate()
+// reads it too, so the error survives a full re-render (e.g. toggling hints) instead of only
+// existing as a one-off DOM patch from showNameFieldError().
+let nameFieldError = false;
+function showNameFieldError(){
+  nameFieldError = true;
+  const input = document.getElementById("rater-name");
+  const err = document.getElementById("name-field-error");
+  if(input) input.classList.add("input-error");
+  if(err) err.classList.add("show");
+  if(input) input.focus();
+}
+function clearNameFieldError(){
+  if(!nameFieldError) return;
+  nameFieldError = false;
+  const input = document.getElementById("rater-name");
+  const err = document.getElementById("name-field-error");
+  if(input) input.classList.remove("input-error");
+  if(err) err.classList.remove("show");
+}
+// total/answered fold the name field in as one more thing to complete (49 items + the name =
+// 50), so the progress bar/toasts read as "how much of this form is done" rather than just
+// "how many items are rated" -- itemsTotal/itemsAnswered/nameSet stay available separately for
+// logic that specifically needs item-only completion (the disabled-export hint below).
 function ratingProgress(){
-  const total = ALL_ITEMS.length;
-  const answered = Object.keys(state.rating.ratings).length;
-  return { total, answered };
+  const itemsTotal = ALL_ITEMS.length;
+  const itemsAnswered = Object.keys(state.rating.ratings).length;
+  const nameSet = !!state.rating.name;
+  return {
+    itemsTotal, itemsAnswered, nameSet,
+    total: itemsTotal + 1,
+    answered: itemsAnswered + (nameSet ? 1 : 0)
+  };
+}
+
+/* Single source of truth for the two bottom-of-quiz action buttons' label/disabled state,
+   used both for the initial render (renderRate(), below) and for the two places that patch
+   these buttons directly instead of re-rendering (nameInput.oninput and handleRateClick, in
+   attachGlobalHandlers/handleRateClick) -- those exist specifically to avoid losing text-input
+   focus / scroll position on a full re-render, so they need this same logic kept in sync
+   rather than duplicated inline.
+   Save-progress is always the outline (secondary) button, enabled as soon as anything at all
+   is filled in -- any single item rated, or just the name typed -- since there's something
+   worth saving at that point; it only stays disabled at the very start, before any of the 50
+   things (49 items + name) has been touched.
+   Save-results is always the solid button and is never given the disabled attribute -- click
+   it while incomplete and exportRatings() (below) sends you into fix-errors mode instead of
+   exporting, so it has to stay genuinely clickable. It keeps the same muted look while
+   incomplete via a class (.pending, styled below) instead of :disabled, and drops that class
+   for the fully opaque look once every item's rated and a name is set. */
+function finalActionButtonState(){
+  const { total, answered } = ratingProgress();
+  const isComplete = answered===total; // total/answered already fold the name in, see ratingProgress()
+  return {
+    saveDisabled: answered===0,
+    saveClass: "btn secondary",
+    saveLabel: isComplete ? "Save" : "Save my progress, I'll come back",
+    exportClass: isComplete ? "btn" : "btn pending",
+    exportLabel: isComplete ? "Save my results" : "I'm done! Download my answers"
+  };
+}
+function syncFinalActionButtons(){
+  const s = finalActionButtonState();
+  const saveBtn = document.getElementById("save-progress-btn");
+  if(saveBtn){ saveBtn.disabled = s.saveDisabled; saveBtn.className = s.saveClass; saveBtn.textContent = s.saveLabel; }
+  const exportBtn = document.getElementById("export-ratings-btn");
+  if(exportBtn){ exportBtn.className = s.exportClass; exportBtn.textContent = s.exportLabel; }
+}
+
+// Shared by both the normal full list and fix-errors mode's two collections below, so there's
+// one implementation of what a rating row looks like instead of two copies that could drift.
+// showCategoryTag is only true in fix-errors mode's "still needed" list, where items are
+// pulled out of their category's block and lose that context otherwise.
+function renderRateItemRow(item, showHints, showCategoryTag){
+  const current = state.rating.ratings[item.id];
+  const isAnswered = !!current;
+  const itemHint = ITEM_HINTS[item.id];
+  const renderPill = (opt)=>`
+    <div class="pill opt-${opt.value} ${current===opt.value?'selected':''}"
+         data-action="rate-item" data-item="${item.id}" data-value="${opt.value}">${esc(opt.label)}</div>`;
+  return `
+  <div class="item-row">
+    <div>
+      ${showCategoryTag ? `<div class="item-category-tag">${esc(item.category)}</div>` : ""}
+      <div class="item-label">${esc(item.label)}</div>
+      ${showHints && itemHint ? `<div class="item-hint">${esc(itemHint)}</div>` : ""}
+    </div>
+    <div class="pill-group ${isAnswered?'answered':''}" data-item="${item.id}">
+      ${RATING_OPTIONS.map(opt=>renderPill(opt)).join("")}
+    </div>
+  </div>`;
 }
 
 function renderRate(){
   ensureRatingState();
-  const { total, answered } = ratingProgress();
+  const { total, answered, nameSet } = ratingProgress();
+  const isComplete = answered===total;
+  // Re-checked on every render rather than tracked as a separate "should I exit" step -- the
+  // moment nothing's left to fix, this just falls back to the normal (now-complete) view.
+  if(fixErrorsMode && isComplete) fixErrorsMode = false;
   const pct = Math.round((answered/total)*100);
-  const nameSet = !!state.rating.name;
+  const fab = finalActionButtonState();
+  const showHints = fixErrorsMode ? true : !!state.showHints;
 
-  const showHints = !!state.showHints;
+  const nameFieldHtml = `
+    <input type="text" id="rater-name" class="${nameFieldError ? 'input-error' : ''}" placeholder="e.g. Alex" value="${esc(state.rating.name)}" data-action="set-name">
+    <div class="field-error${nameFieldError ? ' show' : ''}" id="name-field-error"><span>⚠️</span> Enter a name before saving or downloading your answers.</div>`;
 
-  let itemsHtml = "";
-  CATEGORIES.forEach(cat=>{
-    const catSlug = slugify(cat.name);
-    itemsHtml += `<div class="category-block"><div class="category-title">${esc(cat.name)}</div>`;
-    if(showHints && cat.desc){
-      itemsHtml += `<div class="category-desc">${esc(cat.desc)}</div>`;
-    }
-    cat.items.forEach(label=>{
-      const id = catSlug+"__"+slugify(label);
-      const current = state.rating.ratings[id];
-      const isAnswered = !!current;
-      const itemHint = ITEM_HINTS[id];
-      const renderPill = (opt)=>`
-        <div class="pill opt-${opt.value} ${current===opt.value?'selected':''}"
-             data-action="rate-item" data-item="${id}" data-value="${opt.value}">${esc(opt.label)}</div>`;
-      itemsHtml += `
+  let itemsCardHtml;
+  if(fixErrorsMode){
+    const thingsLeft = total - answered;
+    // "still needed" -- the name field (if empty) plus every unrated item, pulled together
+    // regardless of which category they came from, per the ask: "whether it's a name or
+    // something to rate."
+    let neededHtml = "";
+    if(!nameSet){
+      neededHtml += `
       <div class="item-row">
-        <div>
-          <div class="item-label">${esc(label)}</div>
-          ${showHints && itemHint ? `<div class="item-hint">${esc(itemHint)}</div>` : ""}
-        </div>
-        <div class="pill-group ${isAnswered?'answered':''}" data-item="${id}">
-          ${RATING_OPTIONS.map(opt=>renderPill(opt)).join("")}
-        </div>
+        <div><label class="field-label" for="rater-name">Your name <span class="field-label-note">(shown to your partner(s) in the results)</span></label></div>
+        <div>${nameFieldHtml}</div>
       </div>`;
+    }
+    ALL_ITEMS.forEach(item=>{
+      if(!state.rating.ratings[item.id]) neededHtml += renderRateItemRow(item, true, true);
     });
-    itemsHtml += `</div>`;
-  });
+    // "already rated" -- everything answered, grouped by category same as the normal list,
+    // tucked into one collapsed accordion (reusing the results-page accordion component) that
+    // stays fully editable if opened.
+    let ratedHtml = "";
+    CATEGORIES.forEach(cat=>{
+      const catSlug = slugify(cat.name);
+      const answeredInCat = cat.items
+        .map(label=>({ id: catSlug+"__"+slugify(label), category: cat.name, label }))
+        .filter(item=>!!state.rating.ratings[item.id]);
+      if(!answeredInCat.length) return;
+      ratedHtml += `<div class="category-block"><div class="category-title">${esc(cat.name)}</div>`;
+      answeredInCat.forEach(item=> ratedHtml += renderRateItemRow(item, false, false));
+      ratedHtml += `</div>`;
+    });
+    itemsCardHtml = `
+    <div class="card">
+      <div class="progress-wrap fix-errors-bar">
+        <div class="accordion-header-label">
+          <span class="emoji">${"⚠️"}</span>
+          <span class="fix-errors-title">
+            <span class="title-full">${thingsLeft} uncompleted item${thingsLeft===1?'':'s'}</span>
+            <span class="title-short">${thingsLeft} to do item${thingsLeft===1?'':'s'}</span>
+          </span>
+        </div>
+        <div class="accordion-header-right">
+          <button class="btn ghost small hint-toggle-btn fix-errors-exit-btn" data-action="exit-fix-errors">
+            <span class="exit-icon">✕</span><span class="exit-label"> Exit error mode</span>
+          </button>
+        </div>
+      </div>
+      ${neededHtml}
+    </div>
+    ${renderAccordionSection("rated", "\u{2705}", "Things you already rated", answered - (nameSet?1:0), ratedHtml || `<div class="empty-state">Nothing rated yet.</div>`)}`;
+  } else {
+    let itemsHtml = "";
+    CATEGORIES.forEach(cat=>{
+      const catSlug = slugify(cat.name);
+      itemsHtml += `<div class="category-block">`;
+      if(showHints && cat.desc){
+        itemsHtml += `<div class="category-header with-hint">
+          <div class="category-title">${esc(cat.name)}</div>
+          <div class="category-desc">${esc(cat.desc)}</div>
+        </div>`;
+      } else {
+        itemsHtml += `<div class="category-title">${esc(cat.name)}</div>`;
+      }
+      cat.items.forEach(label=>{
+        const item = { id: catSlug+"__"+slugify(label), category: cat.name, label };
+        itemsHtml += renderRateItemRow(item, showHints, false);
+      });
+      itemsHtml += `</div>`;
+    });
+    itemsCardHtml = `
+    <div class="card">
+      <div class="progress-wrap">
+        <div class="progress-text" id="progress-text">${answered} of ${total}</div>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:${pct}%;"></div></div>
+        <button class="btn ghost small hint-toggle-btn" data-action="toggle-hints">${showHints ? '<span class="emoji">\u{1F4A1}</span> Hide hints' : '<span class="emoji">\u{1F4A1}</span> Show hints'}</button>
+      </div>
+      ${itemsHtml}
+    </div>`;
+  }
 
   return `
   ${topBar('Private rating — your partner cannot see this screen or your answers here. Later, on the compiled results screen, you and your partner(s) will see items everyone rated "Def want this" or "Skip — discuss later," plus a list of "Neutral" items. Your "Not interested" answers are never shown to anyone else.')}
+  ${(!fixErrorsMode || nameSet) ? `
   <div class="card">
-    <label class="field-label">Your name (shown to your partner(s) in the results)</label>
-    <input type="text" id="rater-name" placeholder="e.g. Alex" value="${esc(state.rating.name)}" data-action="set-name">
-  </div>
+    <label class="field-label">Your name <span class="field-label-note">(shown to your partner(s) in the results)</span></label>
+    ${nameFieldHtml}
+  </div>` : ""}
 
-  <div class="card">
-    <div class="progress-wrap">
-      <div class="progress-text" id="progress-text">${answered} of ${total} rated</div>
-      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:${pct}%;"></div></div>
-      <button class="btn ghost small hint-toggle-btn" data-action="toggle-hints">${showHints ? '<span class="emoji">\u{1F4A1}</span> Hide hints' : '<span class="emoji">\u{1F4A1}</span> Show hints'}</button>
-    </div>
-    ${itemsHtml}
-  </div>
+  ${itemsCardHtml}
 
-  <div class="card row between">
-    <div class="muted" style="font-size:0.85rem;max-width:420px;">
-      Not done? Click <strong>Save My Progress</strong> any time — it downloads a small file you can re-import
-      later to pick up exactly where you left off, even on a different browser tab or if this device forgets you.
-      <strong>When you're done</strong> and rated everything, export your final ratings and send that file to whoever is compiling results.
-    </div>
-    <div class="row">
-      <button class="btn secondary" id="save-progress-btn" data-action="save-progress" ${(!nameSet) ? "disabled" : ""}>
-        Save My Progress
+  <div class="card final-actions-grid">
+    <div class="final-actions-col">
+      <div class="muted final-actions-copy">
+        Not done? Click <strong>${fab.saveLabel}</strong> any time — it downloads a small file you can re-import
+        later to pick up exactly where you left off, even on a different browser tab or if this device forgets you.
+      </div>
+      <button class="${fab.saveClass}" id="save-progress-btn" data-action="save-progress" ${fab.saveDisabled ? "disabled" : ""}>
+        ${fab.saveLabel}
       </button>
-      <button class="btn" id="export-ratings-btn" data-action="export-ratings" ${(!nameSet || answered<total) ? "disabled" : ""}>
-        Export My Ratings
+    </div>
+    <div class="final-actions-col">
+      <div class="muted final-actions-copy">
+        <strong>When you're done</strong> and rated everything, save your final results and send that file to whoever is compiling results.
+      </div>
+      <button class="${fab.exportClass}" id="export-ratings-btn" data-action="export-ratings">
+        ${fab.exportLabel}
       </button>
     </div>
   </div>
@@ -1298,9 +1610,12 @@ function buildResultsFromLoadedFiles(){
 }
 
 /* ============================= RESULTS VIEW ============================= */
-// Per-section open/closed state. Platter starts open (it's the headline), Discuss starts
-// closed (you open it when you're ready to talk), the rest start closed/tucked away.
-let sectionOpen = { platter:true, discuss:false, parked:false, removed:false };
+// Per-section open/closed state, shared by the results-page accordions and the rate view's
+// "already rated" one (key "rated", see renderRate()) since both reuse renderAccordionSection()
+// and the same generic toggle-section action handler. Platter starts open (it's the headline),
+// Discuss starts closed (you open it when you're ready to talk), the rest -- including
+// "rated" -- start closed/tucked away.
+let sectionOpen = { platter:true, discuss:false, parked:false, removed:false, rated:false };
 
 function groupItemsByCategory(itemEntries){
   const map = {};
@@ -1721,8 +2036,23 @@ function addCustomItem(){
 /* ============================= EXPORT ACTIONS ============================= */
 function exportRatings(){
   const { total, answered } = ratingProgress();
-  if(answered < total){ showToast("Please rate every item before exporting."); return; }
-  if(!state.rating.name){ showToast("Enter your name first"); return; }
+  if(answered < total){
+    fixErrorsMode = true;
+    // Always start collapsed on entry -- the accordion's open/closed state persists across
+    // renders (it's not reset by ratingProgress or the mode toggle), so if the user had opened
+    // it earlier just to look something up, entering fix-errors mode later shouldn't dump 40
+    // already-done items in their face instead of the uncompleted ones they need to see.
+    sectionOpen.rated = false;
+    const thingsLeft = total - answered;
+    showToast(`${thingsLeft} thing${thingsLeft===1?'':'s'} left — let's finish up!`);
+    render();
+    // The sticky bar now carries the "uncompleted items" heading itself (it's a single merged
+    // bar, not a bar + separate header), so scrolling it to the top of the viewport is enough --
+    // no more risk of landing mid-way through an open "already rated" accordion, since that gets
+    // force-collapsed above.
+    document.querySelector(".fix-errors-bar")?.scrollIntoView({ block:"start" });
+    return;
+  }
   const payload = {
     type:"smorgasbord-ratings", version:1,
     participant: state.rating.name, timestamp: new Date().toISOString(),
@@ -1734,7 +2064,7 @@ function exportRatings(){
   showToast("Exported! Send this file to whoever is compiling results.");
 }
 function exportProgress(){
-  if(!state.rating.name){ showToast("Enter your name first"); return; }
+  if(!state.rating.name){ showToast("Enter your name first"); showNameFieldError(); return; }
   const { answered, total } = ratingProgress();
   const payload = {
     type:"smorgasbord-progress", version:1,
@@ -1742,7 +2072,7 @@ function exportProgress(){
     ratings: state.rating.ratings
   };
   downloadJSON(payload, `smorgasbord-progress-${slugify(state.rating.name)}-${filenameTimestamp()}.json`);
-  showToast(`Progress saved (${answered} of ${total} rated). Keep this file — you can resume from it any time.`);
+  showToast(`Progress saved (${answered} of ${total}). Keep this file — you can resume from it any time.`);
 }
 function handleProgressFileSelected(file){
   const reader = new FileReader();
@@ -1792,6 +2122,7 @@ function attachGlobalHandlers(){
     else if(action==="build-results"){ buildResultsFromLoadedFiles(); }
     else if(action==="export-ratings"){ exportRatings(); }
     else if(action==="save-progress"){ exportProgress(); }
+    else if(action==="exit-fix-errors"){ fixErrorsMode = false; withScrollPreserved(render); }
     else if(action==="trigger-progress-file-input"){ document.getElementById("progress-file-input").click(); }
     else if(action==="trigger-session-file-input"){ document.getElementById("session-file-input").click(); }
     else if(action==="export-session"){ exportSession(); }
@@ -1822,15 +2153,24 @@ function attachGlobalHandlers(){
     nameInput.oninput = function(){
       state.rating.name = nameInput.value;
       persist();
-      const { total, answered } = ratingProgress();
-      const exportBtn = document.getElementById("export-ratings-btn");
-      if(exportBtn){
-        exportBtn.disabled = !(state.rating.name && answered===total);
+      if(state.rating.name) clearNameFieldError();
+      // In fix-errors mode, moving the name field between "still needed" and the rest happens
+      // on blur (below), not here -- reorganizing the DOM on every keystroke would yank focus
+      // out from under whatever's being typed after the very first character.
+      if(!fixErrorsMode){
+        syncProgressDisplay();
+        syncFinalActionButtons();
       }
-      const saveBtn = document.getElementById("save-progress-btn");
-      if(saveBtn){
-        saveBtn.disabled = !state.rating.name;
-      }
+    };
+    nameInput.onblur = function(){
+      // Deferred a tick: blurring by clicking straight from the name field onto a pill fires
+      // this (via the focus change on mousedown) *before* that click's own mouseup/click pair
+      // is dispatched. Re-rendering synchronously here would shift the item list under the
+      // in-flight click (the name card reappearing above it pushes everything down), causing
+      // the click to land on whatever's now at that screen position instead of the pill. The
+      // pill's own click handler re-renders anyway once it runs, so this mostly just covers
+      // blurring without an immediate follow-up click (tabbing away, clicking blank space).
+      if(fixErrorsMode) setTimeout(function(){ withScrollPreserved(render); }, 0);
     };
   }
 
@@ -1903,6 +2243,15 @@ function syncProgressBarScrollState(){
 function handleRateClick(itemId, value){
   state.rating.ratings[itemId] = value;
   persist();
+  if(fixErrorsMode){
+    // The item needs to actually move from "still needed" to the "already rated" accordion
+    // (or the whole mode needs to auto-exit, if that was the last thing left), not just get a
+    // class toggled in place -- a full render() is the simplest way to get that reorganization
+    // right, and unlike typing in the name field there's no focus/cursor position to lose from
+    // a pill click, so there's no reason to avoid it here the way the direct-patch path below does.
+    withScrollPreserved(render);
+    return;
+  }
   // direct DOM update, no full re-render, to avoid losing scroll position in the long form
   const group = document.querySelector(`.pill-group[data-item="${cssEscape(itemId)}"]`);
   if(group){
@@ -1911,16 +2260,19 @@ function handleRateClick(itemId, value){
       p.classList.toggle("selected", p.dataset.value===value);
     });
   }
+  syncProgressDisplay();
+  syncFinalActionButtons();
+}
+// Shared by handleRateClick and nameInput.oninput (below) -- both patch the DOM directly
+// instead of re-rendering, and now that the name counts as one more thing toward total/answered
+// (see ratingProgress()), typing a name moves the bar/text too, not just rating an item.
+function syncProgressDisplay(){
   const { total, answered } = ratingProgress();
   const pct = Math.round((answered/total)*100);
   const fill = document.getElementById("progress-fill");
   const text = document.getElementById("progress-text");
   if(fill) fill.style.width = pct+"%";
-  if(text) text.textContent = `${answered} of ${total} rated`;
-  const exportBtn = document.getElementById("export-ratings-btn");
-  if(exportBtn){
-    exportBtn.disabled = !(state.rating.name && answered===total);
-  }
+  if(text) text.textContent = `${answered} of ${total}`;
 }
 function cssEscape(s){
   return String(s).replace(/[^a-zA-Z0-9_-]/g, "\\$&");
