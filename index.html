@@ -16,6 +16,18 @@
     --ink:#2b2530;
     --muted:#5c5566;
     --line:#eee3e8;
+    /* animated background blob palette — soft, pastel versions of the accent/cert colors above,
+       matching the same variables in the quiz app so the two pages read as one product */
+    --g-bg1:#f7f1fb;
+    --g-bg2:#fdf3f6;
+    --g-c1:124,77,255;
+    --g-c2:200,109,215;
+    --g-c3:110,200,180;
+    --g-c4:221,178,90;
+    --g-c5:230,150,170;
+    --g-c-interactive:150,120,255;
+    --g-circle-size:60%;
+    --g-blend:soft-light;
   }
   *{box-sizing:border-box;}
   body{
@@ -25,10 +37,77 @@
     color:var(--ink);
     line-height:1.6;
   }
+
+  /* ---- animated morphing-gradient background: soft, drifting blurred color blobs behind
+     every screen, ported from the quiz app (relationship-anarchy-smorgasbord.html), adapted
+     from the goo-filter technique in https://youtu.be/Ml-B-W91gtw (baunov/gradients-bg).
+     Pure-CSS keyframe animation; safe/inert in non-visual environments (no JS animation loop,
+     so it can't hang a headless test run). ---- */
+  @keyframes gMoveInCircle{0%{transform:rotate(0deg);}50%{transform:rotate(180deg);}100%{transform:rotate(360deg);}}
+  @keyframes gMoveVertical{0%{transform:translateY(-50%);}50%{transform:translateY(50%);}100%{transform:translateY(-50%);}}
+  @keyframes gMoveHorizontal{0%{transform:translateX(-50%) translateY(-10%);}50%{transform:translateX(50%) translateY(10%);}100%{transform:translateX(-50%) translateY(-10%);}}
+  .gradient-bg{
+    position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;
+    background:linear-gradient(40deg,var(--g-bg1),var(--g-bg2));
+  }
+  .gradient-bg svg{position:fixed;top:0;left:0;width:0;height:0;}
+  .gradient-bg .gradients-container{filter:url(#goo) blur(40px);width:100%;height:100%;opacity:0.3;}
+  .gradient-bg .g1,.gradient-bg .g2,.gradient-bg .g3,.gradient-bg .g4,.gradient-bg .g5,.gradient-bg .interactive{
+    position:absolute;mix-blend-mode:var(--g-blend);
+  }
+  .gradient-bg .g1{
+    background:radial-gradient(circle at center,rgba(var(--g-c1),0.8) 0,rgba(var(--g-c1),0) 50%) no-repeat;
+    width:var(--g-circle-size);height:var(--g-circle-size);
+    top:calc(50% - var(--g-circle-size) / 2);left:calc(50% - var(--g-circle-size) / 2);
+    transform-origin:center center;animation:gMoveVertical 60s ease infinite;
+  }
+  .gradient-bg .g2{
+    background:radial-gradient(circle at center,rgba(var(--g-c2),0.8) 0,rgba(var(--g-c2),0) 50%) no-repeat;
+    width:var(--g-circle-size);height:var(--g-circle-size);
+    top:calc(50% - var(--g-circle-size) / 2);left:calc(50% - var(--g-circle-size) / 2);
+    transform-origin:calc(50% - 400px);animation:gMoveInCircle 40s reverse infinite;
+  }
+  .gradient-bg .g3{
+    background:radial-gradient(circle at center,rgba(var(--g-c3),0.8) 0,rgba(var(--g-c3),0) 50%) no-repeat;
+    width:var(--g-circle-size);height:var(--g-circle-size);
+    top:calc(50% - var(--g-circle-size) / 2 + 200px);left:calc(50% - var(--g-circle-size) / 2 - 500px);
+    transform-origin:calc(50% + 400px);animation:gMoveInCircle 80s linear infinite;
+  }
+  .gradient-bg .g4{
+    background:radial-gradient(circle at center,rgba(var(--g-c4),0.8) 0,rgba(var(--g-c4),0) 50%) no-repeat;
+    width:var(--g-circle-size);height:var(--g-circle-size);
+    top:calc(50% - var(--g-circle-size) / 2);left:calc(50% - var(--g-circle-size) / 2);
+    transform-origin:calc(50% - 200px);animation:gMoveHorizontal 80s ease infinite;opacity:0.7;
+  }
+  .gradient-bg .g5{
+    background:radial-gradient(circle at center,rgba(var(--g-c5),0.8) 0,rgba(var(--g-c5),0) 50%) no-repeat;
+    width:calc(var(--g-circle-size) * 2);height:calc(var(--g-circle-size) * 2);
+    top:calc(50% - var(--g-circle-size));left:calc(50% - var(--g-circle-size));
+    transform-origin:calc(50% - 800px) calc(50% + 200px);animation:gMoveInCircle 40s ease infinite;
+  }
+  .gradient-bg .interactive{
+    background:radial-gradient(circle at center,rgba(var(--g-c-interactive),0.7) 0,rgba(var(--g-c-interactive),0) 50%) no-repeat;
+    width:100%;height:100%;top:-50%;left:-50%;opacity:0.5;
+    transition:transform 0.6s cubic-bezier(0.2,0.8,0.2,1);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .gradient-bg .g1{animation:none;transform:translateY(-50%);}
+    .gradient-bg .g2{animation:none;transform:rotate(0deg);}
+    .gradient-bg .g3{animation:none;transform:rotate(0deg);}
+    .gradient-bg .g4{animation:none;transform:translateX(-50%) translateY(-10%);}
+    .gradient-bg .g5{animation:none;transform:rotate(0deg);}
+    .gradient-bg .interactive{transition:none;}
+  }
+  @media (max-width:700px){
+    .gradient-bg .gradients-container{filter:url(#goo) blur(22px);}
+  }
+  @media print{.gradient-bg{display:none;}}
+
   main{
     max-width:640px;
     margin:0 auto;
     padding:64px 20px 80px;
+    position:relative;z-index:1;
   }
   h1{
     font-family:'Agu Display','Arimo',Arial,sans-serif;
@@ -109,6 +188,25 @@
 </style>
 </head>
 <body>
+<div class="gradient-bg" aria-hidden="true">
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8" result="goo" />
+        <feBlend in="SourceGraphic" in2="goo" />
+      </filter>
+    </defs>
+  </svg>
+  <div class="gradients-container">
+    <div class="g1"></div>
+    <div class="g2"></div>
+    <div class="g3"></div>
+    <div class="g4"></div>
+    <div class="g5"></div>
+    <div class="interactive"></div>
+  </div>
+</div>
 <main>
   <h1>Relationship Smorgasbord Quiz</h1>
 
@@ -179,5 +277,20 @@
     <li><a href="https://www.therelationshipanarchist.com/relationship-anarchy-guide" target="_blank" rel="noopener noreferrer">The Relationship Anarchist &mdash; "Relationship Anarchy Guide"</a></li>
   </ul>
 </main>
+<script>
+// The "interactive" blob eases toward the cursor. Deliberately event-driven (updates the
+// transform directly on mousemove, smoothed by a CSS transition) rather than a manual
+// requestAnimationFrame lerp loop -- same visual effect, but with no perpetually-rescheduling
+// animation frame that would keep running forever. Ported from the quiz app.
+(function initInteractiveBlob(){
+  const interBubble = document.querySelector(".gradient-bg .interactive");
+  if(!interBubble) return;
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduceMotion) return;
+  window.addEventListener("mousemove", function(e){
+    interBubble.style.transform = `translate(${Math.round(e.clientX)}px, ${Math.round(e.clientY)}px)`;
+  });
+})();
+</script>
 </body>
 </html>
